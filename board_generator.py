@@ -1,0 +1,1 @@
+print("Czy MAGDALENA mnie kochaaaaa?")
