@@ -29,7 +29,7 @@ pygame.display.set_caption("Pac-Man board generator")
 clock = pygame.time.Clock()
 
 
-
+#glowna petla
 while True:
     #wypelnianie ekranu kolorem
     screen.fill(WHITE)
