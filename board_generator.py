@@ -17,8 +17,8 @@ RED = (255, 0, 0)
 
 #glowne stale
 FPS = 60
-screen_width = 1000
-screen_height = 700
+screen_width = 700
+screen_height = 600
 
 #okno
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -36,7 +36,7 @@ while True:
 
 
     #jakies rysowanie
-    pygame.draw.rect(screen, RED, (100, 200, 300, 400))
+    pygame.draw.rect(screen, RED, (100, 100, 300, 400))
  
 
     #przechwytywanie zdarzen
