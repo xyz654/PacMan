@@ -1,4 +1,5 @@
 import pygame
+import sys
 
 
 pygame.init()
@@ -37,6 +38,25 @@ while True:
     #jakies rysowanie
     pygame.draw.rect(screen, RED, (100, 200, 300, 400))
  
+
+    #przechwytywanie zdarzen
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                print("Move the character forwards")
+            elif event.key == pygame.K_s:
+                print("Move the character backwards")
+            elif event.key == pygame.K_a:
+                print("Move the character left")
+            elif event.key == pygame.K_d:
+                print("Move the character right")
+        
+
 
     #odswiezanie okna
     pygame.display.update()
