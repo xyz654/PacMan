@@ -47,19 +47,21 @@ def draw_grid(border):
     dx = (screen_width-width)/2
     dy = (screen_height-height)/2
 
+    #zaznaczanie kwadracika
+    if(mousePos[0]>=dx and mousePos[1]>=dy and mousePos[0]<width+dx and mousePos[1]<height+dy):
+        xk=(mousePos[0])-(mousePos[0]-dx)%border
+        yk=(mousePos[1])-(mousePos[1]-dy)%border
+        pygame.draw.rect(screen, GREEN, (xk, yk, border, border))
+
     #rysowanie siatki
     for x in range(nX+1):
         for y in range(nY+1):
             pygame.draw.line(screen, BLACK, (dx+x*border, dy), (dx+x*border, dy+height), 1)
             pygame.draw.line(screen, BLACK, (dx, dy+y*border), (dx+width, dy+y*border), 1)
 
-
-
-
-
 #glowna petla
 while True:
-    
+
     #pobieranie pozycji myszki
     mousePos = pygame.mouse.get_pos()
 
