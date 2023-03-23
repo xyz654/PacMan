@@ -79,13 +79,22 @@ def draw_grid():
             if boardTab[x][y] == 1:
                 pygame.draw.rect(screen,BLUE,(dx+x*border,dy+y*border,border,border))
 
+
+
 def build():
     #pobieranie miejsca indeksu w tab myszki
-    i=(int)(mousePos[0]-dx)//nX
-    j=(int)(mousePos[1]-dy)//nY
+    i=(int)(mousePos[0]-dx)//border
+    j=(int)(mousePos[1]-dy)//border
+
+    #jesli kursor jest poza polem, to wychodze z funkcji
+    if i < 0 or j < 0 or i >= nX or j >= nY:
+        return
+    
     #buduje mur
     if buildWall:
         boardTab[i][j] = 1
+
+
 
 #glowna petla
 while True:
