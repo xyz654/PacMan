@@ -12,8 +12,10 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
-BLUE =(0,0, 255)
- 
+BLUE = (0, 0, 255)
+YELLOW_LIGHT = (255, 255, 102)
+YELLOW = (255, 255, 0)
+
 
 #glowne stale
 FPS = 60
@@ -45,18 +47,27 @@ clock = pygame.time.Clock()
 
 #glowne zmienne
 mousePos = pygame.mouse.get_pos()
-
+mouse_is_pressed = False
 boardTab=np.zeros((nX,nY))
 
 
-#zmienne do budowy
-buildWall=False
+#lista budowy
+buildTab = [False,  #rubber 
+            False,  #wall
+            False,  #floor
+            False,  #big dot
+            False   #Pac-Man
+            ]  
 
 
+#funkcja ustawiajaca wszytskie wskazniki budowy na False, poza jednym wskazanym w argumencie
+def makeThemAllFalse(ind):
+    for i in range(len(buildTab)):
+        if i != ind:
+            buildTab[i] = False
 
 
-
-def draw_grid():
+def draw_board():
 
     #wypelnianie ekranu kolorem
     screen.fill(WHITE)
@@ -76,8 +87,21 @@ def draw_grid():
     #rysowanie planszy
     for x in range(nX):
         for y in range(nY):
+            #wall
             if boardTab[x][y] == 1:
                 pygame.draw.rect(screen,BLUE,(dx+x*border,dy+y*border,border,border))
+            #floor
+            if boardTab[x][y] == 2:
+                pygame.draw.rect(screen, BLACK, (dx+x*border,dy+y*border,border,border))
+                pygame.draw.circle(screen, YELLOW_LIGHT, (dx+x*border+border/2, dy+y*border+border/2), border/6)
+            #big dot
+            if boardTab[x][y] == 3:
+                pygame.draw.rect(screen, BLACK, (dx+x*border,dy+y*border,border,border))
+                pygame.draw.circle(screen, YELLOW_LIGHT, (dx+x*border+border/2, dy+y*border+border/2), border/4)
+            #Pac-Man
+            if boardTab[x][y] == 4:
+                pygame.draw.rect(screen, BLACK, (dx+x*border,dy+y*border,border,border))
+                pygame.draw.circle(screen, YELLOW, (dx+x*border+border/2, dy+y*border+border/2), border/3)
 
 
 
@@ -90,9 +114,23 @@ def build():
     if i < 0 or j < 0 or i >= nX or j >= nY:
         return
     
-    #buduje mur
-    if buildWall:
-        boardTab[i][j] = 1
+    #buduje tylko jesli myszka jest wcisniete
+    if mouse_is_pressed:
+        #przechodze po wszystkich mozliwosciach bycia wcisnietym
+        for ind in range(len(buildTab)):
+            #jesli jest cos wcisniete to to buduje
+            if buildTab[ind]:
+                #jesli nie jestem gumka a dame pole to sciana to wychodze
+                if boardTab[i][j] == 1 and ind != 0: return
+
+                #jesli nie ma podlogi a chce polozyc: duza kropke, pacmana, duszka, to wychodze
+                if boardTab[i][j] != 2 and (ind==3 or ind==4): return    
+
+                #jesli wszystko ok to wstawiam to co mam wstawic 
+                boardTab[i][j] = ind
+
+                #wychodze z petli no bo raczej juz reszta jest False
+                return
 
 
 
@@ -102,9 +140,9 @@ while True:
     #pobieranie pozycji myszki
     mousePos = pygame.mouse.get_pos()
 
+    #rysowanie 
+    draw_board()
 
-    #rysowanie siatki
-    draw_grid()
     #budowanie
     build()
  
@@ -115,11 +153,39 @@ while True:
             pygame.quit()
             sys.exit()
 
+        #keydowny
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            #LPM
+            if event.button == 1:
+                mouse_is_pressed = True
 
         if event.type == pygame.KEYDOWN:
+            #rubber
+            if event.key == pygame.K_x:
+                makeThemAllFalse(0)
+                buildTab[0] = not buildTab[0]
+            #wall
             if event.key == pygame.K_w:
-                buildWall = not buildWall
+                makeThemAllFalse(1)
+                buildTab[1] = not buildTab[1]
+            #floor
+            if event.key == pygame.K_q:
+                makeThemAllFalse(2)
+                buildTab[2] = not buildTab[2]
+            #big dot
+            if event.key == pygame.K_e:
+                makeThemAllFalse(3)
+                buildTab[3] = not buildTab[3]
+            #Pac-Man
+            if event.key == pygame.K_p:
+                makeThemAllFalse(4)
+                buildTab[4] = not buildTab[4]
             
+        
+
+        #keyupy
+        if event.type == pygame.MOUSEBUTTONUP:
+            mouse_is_pressed = False
         
 
 
