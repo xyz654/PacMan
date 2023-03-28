@@ -133,6 +133,9 @@ def build():
                 #jesli chce postawic pacmana albo tunel to sprawdzam czy jeszcze moge je wgl wstawic i jak nie to wychodze
                 if (ind==4 and counters[4]>0) or (ind==5 and counters[5]>1): return
 
+                #jesli chce postawic tunel to musi byc na brzegach, jak nie to wychodze
+                if ind==5 and i != 0 and i != nX-1 and j != 0 and j != nY-1: return
+
                 #jesli nie ma podlogi a chce polozyc: duza kropke, pacmana, duszka, to wychodze
                 if boardTab[i][j] != 2 and (ind==3 or ind==4): return    
 
