@@ -60,6 +60,8 @@ buildTab = [False,  #rubber
             False   #tunnel
             ]  
 
+counters = [0 for el in buildTab]
+
 
 #funkcja ustawiajaca wszytskie wskazniki budowy na False, poza jednym wskazanym w argumencie
 def makeThemAllFalse(ind):
@@ -103,6 +105,10 @@ def draw_board():
             if boardTab[x][y] == 4:
                 pygame.draw.rect(screen, BLACK, (dx+x*border,dy+y*border,border,border))
                 pygame.draw.circle(screen, YELLOW, (dx+x*border+border/2, dy+y*border+border/2), border/3)
+            #tunnel
+            if boardTab[x][y] == 5:
+                pygame.draw.rect(screen, BLACK, (dx+x*border,dy+y*border,border,border))
+                pygame.draw.rect(screen, RED, (dx+x*border+border/4,dy+y*border+border/4,border/2,border/2))
 
 
 
@@ -124,11 +130,20 @@ def build():
                 #jesli nie jestem gumka a dame pole to sciana to wychodze
                 if boardTab[i][j] == 1 and ind != 0: return
 
+                #jesli chce postawic pacmana albo tunel to sprawdzam czy jeszcze moge je wgl wstawic i jak nie to wychodze
+                if (ind==4 and counters[4]>0) or (ind==5 and counters[5]>1): return
+
                 #jesli nie ma podlogi a chce polozyc: duza kropke, pacmana, duszka, to wychodze
                 if boardTab[i][j] != 2 and (ind==3 or ind==4): return    
 
-                #jesli wszystko ok to wstawiam to co mam wstawic 
+
+                #jesli cos tam jest to zmniejszam counter czegos co nadpisuje
+                if(int(boardTab[i][j]) != 0):
+                    counters[int(boardTab[i][j])] -= 1
+                    
+                #jesli wszystko ok to wstawiam to co mam wstawic i zwiekszam licznik
                 boardTab[i][j] = ind
+                counters[ind] += 1
 
                 #wychodze z petli no bo raczej juz reszta jest False
                 return
@@ -177,14 +192,14 @@ while True:
             if event.key == pygame.K_e:
                 makeThemAllFalse(3)
                 buildTab[3] = not buildTab[3]
-            #tunnel
-            if event.key == pygame.K_r:
-                makeThemAllFalse(4)
-                buildTab[4] = not buildTab[4]
             #Pac-Man
             if event.key == pygame.K_p:
                 makeThemAllFalse(4)
                 buildTab[4] = not buildTab[4]
+            #tunnel
+            if event.key == pygame.K_r:
+                makeThemAllFalse(5)
+                buildTab[5] = not buildTab[5]
             
         
 
