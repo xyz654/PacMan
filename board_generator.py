@@ -56,7 +56,8 @@ buildTab = [False,  #rubber
             False,  #wall
             False,  #floor
             False,  #big dot
-            False   #Pac-Man
+            False,  #Pac-Man
+            False   #tunnel
             ]  
 
 
@@ -176,6 +177,10 @@ while True:
             if event.key == pygame.K_e:
                 makeThemAllFalse(3)
                 buildTab[3] = not buildTab[3]
+            #tunnel
+            if event.key == pygame.K_r:
+                makeThemAllFalse(4)
+                buildTab[4] = not buildTab[4]
             #Pac-Man
             if event.key == pygame.K_p:
                 makeThemAllFalse(4)
