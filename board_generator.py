@@ -51,7 +51,7 @@ mousePos = pygame.mouse.get_pos()
 mouse_is_pressed = False
 boardTab=np.zeros((nX,nY))
 #graf poruszania sie pac-mana - reprezentacja macierzowa 
-graf=np.zeros((nX*nY, nX*nY))
+graph=np.zeros((nX*nY, nX*nY))
 
 #lista budowy
 buildTab = [False,  #rubber 
@@ -64,7 +64,7 @@ buildTab = [False,  #rubber
 
 counters = [0 for el in buildTab]
 
-#wsp tunelu 
+#wsp tuneli 
 t1=np.zeros(2)
 t2=np.zeros(2)
 
@@ -137,6 +137,26 @@ def draw_board():
     screen.blit(tunel,(dx//8, 3.5*dy))
     screen.blit(bigdot,(dx//8, 4*dy))
 
+    #wyswietlanie statystyk 
+
+    stats = font.render('Statystics', True, BLACK, WHITE)
+    wallStats=font1.render("Walls:  "+(str)(counters[1]), True, BLACK, WHITE)
+    pacmanStats=font1.render("Pacman: " +(str)(counters[4])+ "/1", True, BLACK, WHITE)
+    floorStats=font1.render('Floor:  '+(str)(counters[2]), True, BLACK, WHITE)
+    tunelStats=font1.render('Tunels: '+(str)(counters[5])+ "/2", True, BLACK, WHITE)
+    bigdotStats=font1.render('Big dots: '+(str)(counters[3]), True, BLACK, WHITE)
+
+    statsRect = stats.get_rect()
+    statsRect.center = (dx//2, 5*dy)
+
+    screen.blit(stats,statsRect)
+    screen.blit(wallStats,(dx//8, 5.5*dy))
+    screen.blit(pacmanStats,(dx//8, 6*dy))
+    screen.blit(floorStats,(dx//8,6.5*dy))
+    screen.blit(tunelStats,(dx//8, 7*dy))
+    screen.blit(bigdotStats,(dx//8, 7.5*dy))
+
+
 
     #dodawanie przycisku zapisz
     pygame.draw.rect(screen,GREY,((width+dx+20),height+dy-40,100,30),0,10)
@@ -145,19 +165,7 @@ def draw_board():
     save=font1.render('SAVE', True, BLACK, GREY)
     screen.blit(save,((width+dx+60), height+dy-30))
 
-    i=(int)(mousePos[0]-width-dx-20)
-    j=(int)(mousePos[1]-(height+dy-40))
-
-    if mouse_is_pressed and i>0 and i<100 and j>0 and j<30:
-        #zapisz
-        print("zapisz")
-        f = open("graf.txt",mode='w')
-        for i in range(len(graf[0])):
-
-            f.write(str(graf[i]))
-            f.write("\n")
-        f.close()
-
+    
 
 def build():
     #pobieranie miejsca indeksu w tab myszki
@@ -183,13 +191,15 @@ def build():
                 #jesli chce postawic tunel to musi byc na brzegach ale nie w rogu!, jak nie to wychodze
                 if ind==5 and i != 0 and i != nX-1 and j != 0 and j != nY-1: return
 
-                 #jesli chce postawic tunel to nie moze byc w rogu!, jak nie to wychodze
+                #jesli chce postawic tunel to nie moze byc w rogu!, jak nie to wychodze
 
                 if ind==5 and ((i==0 and j==0) or (i==0 and j==nY-1) or (i==nX-1 and j==0) or (i==nX-1 and j==nY-1)): return
 
                 #jesli nie ma podlogi a chce polozyc: duza kropke, pacmana, duszka, to wychodze
                 if boardTab[i][j] != 2 and (ind==3 or ind==4): return    
 
+                #jesli chce postawic podloge, to nie moze byc na skraju
+                if ind==2 and (i==0 or j==0 or i==nX-1 or j==nY-1): return
 
                 #jesli cos tam jest to zmniejszam counter czegos co nadpisuje
                 if(int(boardTab[i][j]) != 0):
@@ -210,62 +220,49 @@ def build():
                             else: #chce usunac t2
                                 t2[0]=0
                                 t2[1]=0
-                            
-                            #usuwam polaczenie miedzy tunelami, bo zostaje tylko jeden
-                            graf[(int)(t1[1]*nX+t1[0])][(int)(t2[1]*nX+t2[0])]=0
-                            graf[(int)(t2[1]*nX+t2[0])][(int)(t1[1]*nX+t1[0])]=0
-
-                    if boardTab[i][j]==2: #chce zmazac podloge - trzeba usunac polaczenia w grafie
-                        if boardTab[i-1][j]==2: #lewo
-                            graf[j*nX+i][j*nX+i-1]=0
-                            graf[j*nX+i-1][j*nX+i]=0
-                        if boardTab[i+1][j]==2: #prawo
-                            graf[j*nX+i][j*nX+i+1]=0
-                            graf[j*nX+i+1][j*nX+i]=0
-                        if boardTab[i][j-1]==2: #gora
-                            graf[j*nX+i][(j-1)*nX+i]=0
-                            graf[(j-1)*nX+i][j*nX+i]=0
-                        if boardTab[i][j+1]==2: #dol
-                            graf[j*nX+i][(j+1)*nX+i]=0
-                            graf[(j+1)*nX+i][j*nX+i]=0
-                    
-                #jesli wszystko ok to wstawiam to co mam wstawic i zwiekszam licznik
+                
                 boardTab[i][j] = ind
                 counters[ind] += 1
-                if ind==5: #jesli to byl tunel, to zapisuje jego wsp
-                    if t1[1]==0 and t1[0]==0:
-                        t1[0]=i
-                        t1[1]=j
-                    else:
-                        t2[0]=i
-                        t2[1]=j
-
-                
-
-                if ind==2: #zbudowano podloge
-                    #sprawdzam co jest naokolo (gora,dol,prawo,lewo) i jesli tez podloga to dodaje do macierzy
-                    if boardTab[i-1][j]==2: #lewo
-                        graf[j*nX+i][j*nX+i-1]=1
-                        graf[j*nX+i-1][j*nX+i]=1
-                    if boardTab[i+1][j]==2: #prawo
-                        graf[j*nX+i][j*nX+i+1]=1
-                        graf[j*nX+i+1][j*nX+i]=1
-                    if boardTab[i][j-1]==2: #gora
-                        graf[j*nX+i][(j-1)*nX+i]=1
-                        graf[(j-1)*nX+i][j*nX+i]=1
-                    if boardTab[i][j+1]==2: #dol
-                        graf[j*nX+i][(j+1)*nX+i]=1
-                        graf[(j+1)*nX+i][j*nX+i]=1
-
-                if ind==5 and counters[5]==2: #zbudowano tunel i juz jakis jest na mapie
-                   
-                    graf[(int)(t1[1]*nX+t1[0])][(int)(t2[1]*nX+t2[0])]=1
-                    graf[(int)(t2[1]*nX+t2[0])][(int)(t1[1]*nX+t1[0])]=1
-
-
-
+ 
                 #wychodze z petli no bo raczej juz reszta jest False
                 return
+
+
+def makeGraph():
+    for i in range(nX):
+        for j in range(nY):
+            #jezeli jest tam podloga - to dodaje do grafu
+            if boardTab[i][j]==2:
+                #lewo
+                if boardTab[i-1][j]==2:
+                    graph[j*nX+i][j*nX+i-1]=1
+                    graph[j*nX+i-1][j*nX+i]=1
+                #prawo
+                if boardTab[i+1][j]==2: 
+                    graph[j*nX+i][j*nX+i+1]=1
+                    graph[j*nX+i+1][j*nX+i]=1
+                #gora
+                if boardTab[i][j-1]==2:
+                    graph[j*nX+i][(j-1)*nX+i]=1
+                    graph[(j-1)*nX+i][j*nX+i]=1
+                #dol
+                if boardTab[i][j+1]==2:
+                    graph[j*nX+i][(j+1)*nX+i]=1
+                    graph[(j+1)*nX+i][j*nX+i]=1
+
+            #obsluga tuneli
+            if boardTab[i][j]==5 and counters[5]==2:
+                graph[(int)(t1[1]*nX+t1[0])][(int)(t2[1]*nX+t2[0])]=1
+                graph[(int)(t2[1]*nX+t2[0])][(int)(t1[1]*nX+t1[0])]=1
+                
+
+def save():
+    print("zapisz")
+    f = open("graf.txt",mode='w')
+    for i in range(len(graph[0])):
+        f.write(str(graph[i]))
+        f.write("\n")
+    f.close()
 
 
 
@@ -326,7 +323,12 @@ while True:
         if event.type == pygame.MOUSEBUTTONUP:
             mouse_is_pressed = False
         
+    i=(int)(mousePos[0]-width-dx-20)
+    j=(int)(mousePos[1]-(height+dy-40))
 
+    if mouse_is_pressed and i>0 and i<100 and j>0 and j<30:
+        #zapisz
+        save()
 
     #odswiezanie okna
     pygame.display.update()
