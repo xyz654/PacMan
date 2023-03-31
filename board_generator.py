@@ -180,8 +180,12 @@ def build():
                 #jesli chce postawic pacmana albo tunel to sprawdzam czy jeszcze moge je wgl wstawic i jak nie to wychodze
                 if (ind==4 and counters[4]>0) or (ind==5 and counters[5]>1): return
 
-                #jesli chce postawic tunel to musi byc na brzegach, jak nie to wychodze
+                #jesli chce postawic tunel to musi byc na brzegach ale nie w rogu!, jak nie to wychodze
                 if ind==5 and i != 0 and i != nX-1 and j != 0 and j != nY-1: return
+
+                 #jesli chce postawic tunel to nie moze byc w rogu!, jak nie to wychodze
+
+                if ind==5 and ((i==0 and j==0) or (i==0 and j==nY-1) or (i==nX-1 and j==0) or (i==nX-1 and j==nY-1)): return
 
                 #jesli nie ma podlogi a chce polozyc: duza kropke, pacmana, duszka, to wychodze
                 if boardTab[i][j] != 2 and (ind==3 or ind==4): return    
@@ -208,8 +212,8 @@ def build():
                                 t2[1]=0
                             
                             #usuwam polaczenie miedzy tunelami, bo zostaje tylko jeden
-                            graf[t1[1]*nX+t1[0]][t2[1]*nX+t2[0]]=0
-                            graf[t2[1]*nX+t2[0]][t1[1]*nX+t1[0]]=0
+                            graf[(int)(t1[1]*nX+t1[0])][(int)(t2[1]*nX+t2[0])]=0
+                            graf[(int)(t2[1]*nX+t2[0])][(int)(t1[1]*nX+t1[0])]=0
 
                     if boardTab[i][j]==2: #chce zmazac podloge - trzeba usunac polaczenia w grafie
                         if boardTab[i-1][j]==2: #lewo
@@ -254,8 +258,7 @@ def build():
                         graf[(j+1)*nX+i][j*nX+i]=1
 
                 if ind==5 and counters[5]==2: #zbudowano tunel i juz jakis jest na mapie
-                    print(t1,t2)
-                    print((int)(t1[1]*nX+t1[0]),(int)(t2[1]*nX+t2[0]))
+                   
                     graf[(int)(t1[1]*nX+t1[0])][(int)(t2[1]*nX+t2[0])]=1
                     graf[(int)(t2[1]*nX+t2[0])][(int)(t1[1]*nX+t1[0])]=1
 
