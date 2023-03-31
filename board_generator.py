@@ -15,6 +15,7 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW_LIGHT = (255, 255, 102)
 YELLOW = (255, 255, 0)
+GREY = (211,211,211)
 
 
 #glowne stale
@@ -22,8 +23,8 @@ FPS = 60
 screen_width = 700
 screen_height = 600
 
-nX = 20
-nY = 25
+nX = 20 #4
+nY = 25 #5
 
 border = 20
 
@@ -49,7 +50,8 @@ clock = pygame.time.Clock()
 mousePos = pygame.mouse.get_pos()
 mouse_is_pressed = False
 boardTab=np.zeros((nX,nY))
-
+#graf poruszania sie pac-mana - reprezentacja macierzowa 
+graf=np.zeros((nX*nY, nX*nY))
 
 #lista budowy
 buildTab = [False,  #rubber 
@@ -61,6 +63,10 @@ buildTab = [False,  #rubber
             ]  
 
 counters = [0 for el in buildTab]
+
+#wsp tunelu 
+t1=np.zeros(2)
+t2=np.zeros(2)
 
 
 #funkcja ustawiajaca wszytskie wskazniki budowy na False, poza jednym wskazanym w argumencie
@@ -110,6 +116,47 @@ def draw_board():
                 pygame.draw.rect(screen, BLACK, (dx+x*border,dy+y*border,border,border))
                 pygame.draw.rect(screen, RED, (dx+x*border+border/4,dy+y*border+border/4,border/2,border/2))
 
+    #rysowanie legendy
+    font = pygame.font.Font('freesansbold.ttf', 20)
+    font1=pygame.font.Font('freesansbold.ttf', 10)
+    text = font.render('Legend', True, BLACK, WHITE)
+    wall=font1.render('to set wall press: W', True, BLACK, WHITE)
+    pacman=font1.render('to set pacman press: P', True, BLACK, WHITE)
+    rubber=font1.render('to get rubber press: X', True, BLACK, WHITE)
+    floor=font1.render('to set floor press: Q', True, BLACK, WHITE)
+    tunel=font1.render('to set tunel press: R', True, BLACK, WHITE)
+    bigdot=font1.render('to set BigDot press: E', True, BLACK, WHITE)
+
+    textRect = text.get_rect()
+    textRect.center = (dx//2, dy)
+    screen.blit(text, textRect)
+    screen.blit(wall,(dx//8, 1.5*dy))
+    screen.blit(pacman,(dx//8, 2*dy))
+    screen.blit(rubber,(dx//8,2.5*dy))
+    screen.blit(floor,(dx//8, 3*dy))
+    screen.blit(tunel,(dx//8, 3.5*dy))
+    screen.blit(bigdot,(dx//8, 4*dy))
+
+
+    #dodawanie przycisku zapisz
+    pygame.draw.rect(screen,GREY,((width+dx+20),height+dy-40,100,30),0,10)
+    pygame.draw.rect(screen,BLACK,((width+dx+20),height+dy-40,100,30),1,10)
+
+    save=font1.render('SAVE', True, BLACK, GREY)
+    screen.blit(save,((width+dx+60), height+dy-30))
+
+    i=(int)(mousePos[0]-width-dx-20)
+    j=(int)(mousePos[1]-(height+dy-40))
+
+    if mouse_is_pressed and i>0 and i<100 and j>0 and j<30:
+        #zapisz
+        print("zapisz")
+        f = open("graf.txt",mode='w')
+        for i in range(len(graf[0])):
+
+            f.write(str(graf[i]))
+            f.write("\n")
+        f.close()
 
 
 def build():
@@ -143,10 +190,76 @@ def build():
                 #jesli cos tam jest to zmniejszam counter czegos co nadpisuje
                 if(int(boardTab[i][j]) != 0):
                     counters[int(boardTab[i][j])] -= 1
+
+                if ind==0: #jesli jestem gumka trzeba sprawdzic co chce zmazac - czy tunel
+                    if boardTab[i][j]==5:
+                        if counters[5]==0: #byl tylko jeden
+                            t1[0]=0
+                            t1[1]=0
+                        else: #byly dwa - trzeba sie dowiedziec ktory usuwam
+                            if t1[0]==i and t1[1]==j: #chce usunac t1
+                                #przepisuje dane do t1 i usuwam t2
+                                t1[0]=t2[0]
+                                t1[1]=t2[1]
+                                t2[0]=0
+                                t2[1]=0
+                            else: #chce usunac t2
+                                t2[0]=0
+                                t2[1]=0
+                            
+                            #usuwam polaczenie miedzy tunelami, bo zostaje tylko jeden
+                            graf[t1[1]*nX+t1[0]][t2[1]*nX+t2[0]]=0
+                            graf[t2[1]*nX+t2[0]][t1[1]*nX+t1[0]]=0
+
+                    if boardTab[i][j]==2: #chce zmazac podloge - trzeba usunac polaczenia w grafie
+                        if boardTab[i-1][j]==2: #lewo
+                            graf[j*nX+i][j*nX+i-1]=0
+                            graf[j*nX+i-1][j*nX+i]=0
+                        if boardTab[i+1][j]==2: #prawo
+                            graf[j*nX+i][j*nX+i+1]=0
+                            graf[j*nX+i+1][j*nX+i]=0
+                        if boardTab[i][j-1]==2: #gora
+                            graf[j*nX+i][(j-1)*nX+i]=0
+                            graf[(j-1)*nX+i][j*nX+i]=0
+                        if boardTab[i][j+1]==2: #dol
+                            graf[j*nX+i][(j+1)*nX+i]=0
+                            graf[(j+1)*nX+i][j*nX+i]=0
                     
                 #jesli wszystko ok to wstawiam to co mam wstawic i zwiekszam licznik
                 boardTab[i][j] = ind
                 counters[ind] += 1
+                if ind==5: #jesli to byl tunel, to zapisuje jego wsp
+                    if t1[1]==0 and t1[0]==0:
+                        t1[0]=i
+                        t1[1]=j
+                    else:
+                        t2[0]=i
+                        t2[1]=j
+
+                
+
+                if ind==2: #zbudowano podloge
+                    #sprawdzam co jest naokolo (gora,dol,prawo,lewo) i jesli tez podloga to dodaje do macierzy
+                    if boardTab[i-1][j]==2: #lewo
+                        graf[j*nX+i][j*nX+i-1]=1
+                        graf[j*nX+i-1][j*nX+i]=1
+                    if boardTab[i+1][j]==2: #prawo
+                        graf[j*nX+i][j*nX+i+1]=1
+                        graf[j*nX+i+1][j*nX+i]=1
+                    if boardTab[i][j-1]==2: #gora
+                        graf[j*nX+i][(j-1)*nX+i]=1
+                        graf[(j-1)*nX+i][j*nX+i]=1
+                    if boardTab[i][j+1]==2: #dol
+                        graf[j*nX+i][(j+1)*nX+i]=1
+                        graf[(j+1)*nX+i][j*nX+i]=1
+
+                if ind==5 and counters[5]==2: #zbudowano tunel i juz jakis jest na mapie
+                    print(t1,t2)
+                    print((int)(t1[1]*nX+t1[0]),(int)(t2[1]*nX+t2[0]))
+                    graf[(int)(t1[1]*nX+t1[0])][(int)(t2[1]*nX+t2[0])]=1
+                    graf[(int)(t2[1]*nX+t2[0])][(int)(t1[1]*nX+t1[0])]=1
+
+
 
                 #wychodze z petli no bo raczej juz reszta jest False
                 return
