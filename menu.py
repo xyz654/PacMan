@@ -1,6 +1,15 @@
 import pygame
 import sys
 import numpy as np
+import os
+import tkinter
+import subprocess
+import json
+import multiprocessing
+import board_generator as bg
+from tkinter import filedialog
+
+
 
 
 pygame.init()
@@ -35,13 +44,13 @@ pygame.display.set_caption("Pac-Man board generator")
 clock = pygame.time.Clock()
 
 
+
 def show():
 
     screen.fill(WHITE)
 
     #czcionki
     font1=pygame.font.Font('freesansbold.ttf', 20)
-
 
     #welcome - napis
 
@@ -68,6 +77,7 @@ def show():
     pygame.draw.rect(screen,BLACK,((screen_width//4),4*screen_height//8,screen_width//2,50),1,10)
     save=font1.render('PLAY', True, BLACK, GREY)
     screen.blit(save,(screen_width//2-25,4*screen_height//8+15))
+
 
 
 
@@ -100,13 +110,25 @@ while True:
     if mouse_is_pressed and x>screen_width//4 and x<3*screen_width//4 and y>screen_height//4 and y<screen_height//4+50:
         #rozpocznij tworzenie nowej planszy
         print("new")
-        import board_generator
+        bo = bg.BoardGenerator([])
+        bo.run()
         # break
     
     if mouse_is_pressed and x>screen_width//4 and x<3*screen_width//4 and y>3*screen_height//8 and y<3*screen_height//8+50:
         #wczytaj wersje robocz
         print("wersja robocza")
-        # break
+        
+        filepath=filedialog.askopenfilename()
+        print(filepath)
+
+
+
+        tab=np.zeros((20,25))
+        tab[1][1]=2
+        bo = bg.BoardGenerator(tab)
+        bo.run()
+        
+       
 
     if mouse_is_pressed and x>screen_width//4 and x<3*screen_width//4 and y>screen_height//2 and y<screen_height//2+50:
         #graj
@@ -118,3 +140,7 @@ while True:
     pygame.display.update()
     #kontroluje FPS
     clock.tick(FPS)
+
+
+
+
