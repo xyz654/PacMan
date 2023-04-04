@@ -56,19 +56,14 @@ class BoardGenerator:
 
 
         #glowne zmienne
+        self.difficulty=0
         self.isRunning = False
         self.mousePos = pygame.mouse.get_pos()
         self.mouse_is_pressed = False
         self.boardTab=np.zeros((self.nX,self.nY))
         if len(path)!=0:
-
-            fp = open(path, 'r')
-            # read file
-            # print(fp.read())
-            for line in fp.read():
-                print(line)
-            # Closing the file after reading
-            fp.close()
+            self.boardTab=np.load(path)
+           
 
             
         
@@ -188,7 +183,6 @@ class BoardGenerator:
         self.screen.blit(save,((self.width+self.dx+60), self.height+self.dy-30))
 
 
-
     def build(self):
         #pobieranie miejsca indeksu w tab myszki
         i=(int)(self.mousePos[0]-self.dx)//self.border
@@ -278,14 +272,15 @@ class BoardGenerator:
                     self.graph[(int)(self.t2[1]*self.nX+self.t2[0])][(int)(self.t1[1]*self.nX+self.t1[0])]=1
 
     
-    
+    def save(self):
+            path = filedialog.asksaveasfile(defaultextension=".npy")
+
+            np.save(path.name, self.boardTab)
 
     def prepareToSave(self):
 
         #funkcja do zapisywania
-        def save():
-            path = filedialog.asksaveasfile(defaultextension=".npy")
-            print(path.name)
+        
 
         #tworze okno
         root = tk.Tk()
@@ -308,22 +303,16 @@ class BoardGenerator:
         root.resizable(True, True)
 
         #widgety
+        # user_name = ttk.Label(root, text = "Fill the details: ").place(x = 40, y = 60) 
+        # user_name_input_area = ttk.Entry(root, width = 30).place(x = 110, y = 60)
         ttk.Label(root, text='Fill the details:').pack()
         ttk.Label(root, text="Set the name:").pack()
         ttk.Label(root, text="Set the difficulty:").pack()
 
-        ttk.Button(root, text="Save", command=save).pack()
+        ttk.Button(root, text="Save", command=self.save).pack()
 
         root.mainloop()
 
-    def openFile(self):
-        filepath=filedialog.askopenfilename()
-        print(filepath)
-
-
-
-    def loadDraft(self):
-        pass
 
     def run(self):
 
@@ -408,5 +397,5 @@ class BoardGenerator:
                 
 
      
-bo = BoardGenerator([])
-bo.run()
+# bo = BoardGenerator([])
+# bo.run()
