@@ -15,6 +15,7 @@ def runDraftGenerator():
     #pobieram sciezke
     path = filedialog.askopenfile()
     if path!=None:
+        
         #zamykam okno
         root.destroy()
         #otwieram generator
