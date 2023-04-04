@@ -332,14 +332,16 @@ class BoardGenerator:
         path = filedialog.asksaveasfile(defaultextension=".npy")
         if path != None:
             with open(path.name, 'wb') as f:
+                np.save(f, np.array([self.difficulty_to_save, self.cherry_to_save, self.hp_to_save, self.isDraftBoard]))
                 for i in range(self.nX):
                     for j in range(self.nY):
                         np.save(f, np.array([self.boardTab[i][j]]))
-                np.save(f, np.array([self.difficulty_to_save, self.cherry_to_save, self.hp_to_save, self.isDraftBoard]))
+                
 
     def load(self, path):
         if len(path)!=0:
             with open(path, 'rb') as f:
+                stats = np.load(f)
                 for i in range(self.nX):
                     for j in range(self.nY):
                         self.boardTab[i][j] = np.load(f)[0]
