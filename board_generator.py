@@ -103,7 +103,6 @@ class BoardGenerator:
             if i != ind:
                 self.buildTab[i] = False
 
-
     def draw_board(self):
 
         #wypelnianie ekranu kolorem
@@ -203,7 +202,6 @@ class BoardGenerator:
         save=font1.render('SAVE', True, BLACK, GREY)
         self.screen.blit(save,((self.width+self.dx+60), self.height+self.dy-30))
 
-
     def build(self):
         #pobieranie miejsca indeksu w tab myszki
         i=(int)(self.mousePos[0]-self.dx)//self.border
@@ -264,8 +262,8 @@ class BoardGenerator:
                     #wychodze z petli no bo raczej juz reszta jest False
                     return
 
-
     def makeGraph(self):
+        self.graph = np.zeros((self.nX*self.nY, self.nX*self.nY))
         for i in range(self.nX):
             for j in range(self.nY):
                 #jezeli jest tam podloga - to dodaje do grafu
@@ -292,7 +290,6 @@ class BoardGenerator:
                     self.graph[(int)(self.t1[1]*self.nX+self.t1[0])][(int)(self.t2[1]*self.nX+self.t2[0])]=1
                     self.graph[(int)(self.t2[1]*self.nX+self.t2[0])][(int)(self.t1[1]*self.nX+self.t1[0])]=1
 
-
     def dfs(self, w1, w2, visited):
         if w1 == w2:
             return True
@@ -304,8 +301,8 @@ class BoardGenerator:
 
         return False
 
-
     def check_correct(self):
+        self.makeGraph()
         #sprawdzanie popprawnosci plansy przed zapisem
         for i in range(self.nX):
             for j in range(self.nY):
@@ -319,17 +316,16 @@ class BoardGenerator:
         #sprawdzanie czy jest spojne
         for i in range(self.nX):
             for j in range(self.nY):
-                if self.boardTab[i][j] != 1:
+                if self.boardTab[i][j] != 1 and self.boardTab[i][j] != 5 and self.boardTab[i][j] != 0:
                     w1 = j*self.nX + i
-                    for k in range(i,self.nX):
-                        for l in range(j,self.nY):
-                            if self.boardTab[k][l] != 1:
+                    for k in range(self.nX):
+                        for l in range(self.nY):
+                            if self.boardTab[k][l] != 1 and self.boardTab[k][l] != 5 and self.boardTab[k][l] != 0:
                                 w2 = l*self.nX+k
-                                if not self.dfs(w1, w2, [False for i in range(self.nX*self.nY)]):
-                                    return False
+                                if w2 > w1:
+                                    if not self.dfs(w1, w2, [False for i in range(self.nX*self.nY)]):
+                                        return False
         return True
-
-
 
     def save(self):
         path = filedialog.asksaveasfile(defaultextension=".npy")
@@ -340,7 +336,6 @@ class BoardGenerator:
                         np.save(f, np.array([self.boardTab[i][j]]))
                 np.save(f, np.array([self.difficulty_to_save, self.cherry_to_save, self.hp_to_save, self.isDraftBoard]))
 
-    
     def load(self, path):
         if len(path)!=0:
             with open(path, 'rb') as f:
@@ -363,7 +358,9 @@ class BoardGenerator:
         def ifCorrect():
             result = self.check_correct()
             if result:
-                correctButton.configure(text="Board is Correct")
+                correctButton.configure(text="Board is correct")
+            else:
+                correctButton.configure(text="Board is incorrect")
 
         #tworze okno
         root = tk.Tk()
@@ -524,7 +521,3 @@ class BoardGenerator:
             pygame.quit()
             self.prepareToSave()
                 
-
-     
-# bo = BoardGenerator([])
-# bo.run()
