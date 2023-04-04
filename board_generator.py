@@ -269,21 +269,21 @@ class BoardGenerator:
         for i in range(self.nX):
             for j in range(self.nY):
                 #jezeli jest tam podloga - to dodaje do grafu
-                if self.boardTab[i][j]==2:
+                if self.boardTab[i][j] != 1 and self.boardTab[i][j] != 5 and self.boardTab[i][j] != 0:
                     #lewo
-                    if self.boardTab[i-1][j]==2:
+                    if self.boardTab[i-1][j]!=1:
                         self.graph[j*self.nX+i][j*self.nX+i-1]=1
                         self.graph[j*self.nX+i-1][j*self.nX+i]=1
                     #prawo
-                    if self.boardTab[i+1][j]==2: 
+                    if self.boardTab[i+1][j]!=1: 
                         self.graph[j*self.nX+i][j*self.nX+i+1]=1
                         self.graph[j*self.nX+i+1][j*self.nX+i]=1
                     #gora
-                    if self.boardTab[i][j-1]==2:
+                    if self.boardTab[i][j-1]!=1:
                         self.graph[j*self.nX+i][(j-1)*self.nX+i]=1
                         self.graph[(j-1)*self.nX+i][j*self.nX+i]=1
                     #dol
-                    if self.boardTab[i][j+1]==2:
+                    if self.boardTab[i][j+1]!=1:
                         self.graph[j*self.nX+i][(j+1)*self.nX+i]=1
                         self.graph[(j+1)*self.nX+i][j*self.nX+i]=1
 
@@ -293,8 +293,16 @@ class BoardGenerator:
                     self.graph[(int)(self.t2[1]*self.nX+self.t2[0])][(int)(self.t1[1]*self.nX+self.t1[0])]=1
 
 
-    def dfs(self, i, j):
+    def dfs(self, w1, w2, visited):
+        if w1 == w2:
+            return True
+        visited[w1] = True
+        for i in range(len(self.graph[w1])):
+            if self.graph[w1][i] == 1 and not visited[i]:
+                if self.dfs(i, w2, visited.copy()):
+                    return True
 
+        return False
 
 
     def check_correct(self):
@@ -308,8 +316,19 @@ class BoardGenerator:
         if self.counters[5]!=2: return False
         if self.counters[6]!=4: return False
 
-        #sprawdzic czy jest spojne 
-        !!!!! tu wywolac dfs dla kazdego
+        #sprawdzanie czy jest spojne
+        for i in range(self.nX):
+            for j in range(self.nY):
+                if self.boardTab[i][j] != 1:
+                    w1 = j*self.nX + i
+                    for k in range(i,self.nX):
+                        for l in range(j,self.nY):
+                            if self.boardTab[k][l] != 1:
+                                w2 = l*self.nX+k
+                                if not self.dfs(w1, w2, [False for i in range(self.nX*self.nY)]):
+                                    return False
+        return True
+
 
 
     def save(self):
@@ -340,6 +359,11 @@ class BoardGenerator:
             difficultyLabel.config(text="Current difficulty: "+str(self.difficulty_to_save))
             hpLabel.config(text="Current hp: "+str(self.hp_to_save))
             cherryLabel.config(text="Current time: "+str(self.cherry_to_save)+"s")
+        
+        def ifCorrect():
+            result = self.check_correct()
+            if result:
+                correctButton.configure(text="Board is Correct")
 
         #tworze okno
         root = tk.Tk()
@@ -410,11 +434,11 @@ class BoardGenerator:
         cherryLabel = ttk.Label(root, text="Current time: "+str(self.cherry_to_save)+"s")
         cherryLabel.pack()
 
-
+        correctButton = ttk.Button(root, text="Check correct", command=ifCorrect)
+        correctButton.pack()
         ttk.Button(root, text="Save", command=self.save).pack()
 
         root.mainloop()
-
 
     def run(self):
 
