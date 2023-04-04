@@ -247,26 +247,26 @@ class BoardGenerator:
         for i in range(self.nX):
             for j in range(self.nY):
                 #jezeli jest tam podloga - to dodaje do grafu
-                if boardTab[i][j]==2:
+                if self.boardTab[i][j]==2:
                     #lewo
-                    if boardTab[i-1][j]==2:
+                    if self.boardTab[i-1][j]==2:
                         self.graph[j*self.nX+i][j*self.nX+i-1]=1
                         self.graph[j*self.nX+i-1][j*self.nX+i]=1
                     #prawo
-                    if boardTab[i+1][j]==2: 
+                    if self.boardTab[i+1][j]==2: 
                         self.graph[j*self.nX+i][j*self.nX+i+1]=1
                         self.graph[j*self.nX+i+1][j*self.nX+i]=1
                     #gora
-                    if boardTab[i][j-1]==2:
+                    if self.boardTab[i][j-1]==2:
                         self.graph[j*self.nX+i][(j-1)*self.nX+i]=1
                         self.graph[(j-1)*self.nX+i][j*self.nX+i]=1
                     #dol
-                    if boardTab[i][j+1]==2:
+                    if self.boardTab[i][j+1]==2:
                         self.graph[j*self.nX+i][(j+1)*self.nX+i]=1
                         self.graph[(j+1)*self.nX+i][j*self.nX+i]=1
 
                 #obsluga tuneli
-                if boardTab[i][j]==5 and self.counters[5]==2:
+                if self.boardTab[i][j]==5 and self.counters[5]==2:
                     self.graph[(int)(self.t1[1]*self.nX+self.t1[0])][(int)(self.t2[1]*self.nX+self.t2[0])]=1
                     self.graph[(int)(self.t2[1]*self.nX+self.t2[0])][(int)(self.t1[1]*self.nX+self.t1[0])]=1
                     
