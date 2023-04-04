@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
 import board_generator as bg
+import os
 
 
 def runNewGenerator():
@@ -15,12 +16,13 @@ def runDraftGenerator():
     #pobieram sciezke
     path = filedialog.askopenfile()
     if path!=None:
-        
-        #zamykam okno
-        root.destroy()
-        #otwieram generator
-        bo = bg.BoardGenerator(path.name)
-        bo.run()
+        file_extension = os.path.splitext(path.name)[1]
+        if file_extension == ".npy":
+            #zamykam okno
+            root.destroy()
+            #otwieram generator
+            bo = bg.BoardGenerator(path.name)
+            bo.run()
 
 #tworze okno
 root = tk.Tk()
