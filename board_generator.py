@@ -56,7 +56,8 @@ class BoardGenerator:
 
 
         #glowne zmienne
-        self.difficulty=0
+        self.difficulty=1
+        self.difficulty_to_save = 1
         self.isRunning = False
         self.mousePos = pygame.mouse.get_pos()
         self.mouse_is_pressed = False
@@ -273,14 +274,17 @@ class BoardGenerator:
 
     
     def save(self):
-            path = filedialog.asksaveasfile(defaultextension=".npy")
-
+        path = filedialog.asksaveasfile(defaultextension=".npy")
+        if path != None:
             np.save(path.name, self.boardTab)
+    
+    
 
     def prepareToSave(self):
-
-        #funkcja do zapisywania
-        
+        #funkcja do obslugi slidera
+        def countSlider(event):
+            self.difficulty_to_save = int(round(self.difficulty.get(), 0))
+            sliderLabel.config(text="Current difficulty: "+str(self.difficulty_to_save))
 
         #tworze okno
         root = tk.Tk()
@@ -303,11 +307,22 @@ class BoardGenerator:
         root.resizable(True, True)
 
         #widgety
-        # user_name = ttk.Label(root, text = "Fill the details: ").place(x = 40, y = 60) 
-        # user_name_input_area = ttk.Entry(root, width = 30).place(x = 110, y = 60)
         ttk.Label(root, text='Fill the details:').pack()
-        ttk.Label(root, text="Set the name:").pack()
         ttk.Label(root, text="Set the difficulty:").pack()
+        self.difficulty = tk.DoubleVar()
+        slider = ttk.Scale(
+                            root,
+                            from_=1,
+                            to=5,
+                            orient='horizontal', 
+                            variable=self.difficulty,
+                            command=countSlider
+                        )
+        slider.pack()
+
+        sliderLabel = ttk.Label(root, text="Current difficulty: "+str(self.difficulty_to_save))
+        sliderLabel.pack()
+
 
         ttk.Button(root, text="Save", command=self.save).pack()
 
