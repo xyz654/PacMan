@@ -16,6 +16,7 @@ BLUE = (0, 0, 255)
 YELLOW_LIGHT = (255, 255, 102)
 YELLOW = (255, 255, 0)
 GREY = (211,211,211)
+ORANGE =(255,69,0)
 
 
 
@@ -64,9 +65,7 @@ class BoardGenerator:
         self.boardTab=np.zeros((self.nX,self.nY))
         if len(path)!=0:
             self.boardTab=np.load(path)
-           
-
-            
+            # self.difficulty=np.load(path)            
         
         #graf poruszania sie pac-mana - reprezentacja macierzowa 
         self.graph=np.zeros((self.nX*self.nY, self.nX*self.nY))
@@ -77,7 +76,8 @@ class BoardGenerator:
                     False,  #floor
                     False,  #big dot
                     False,  #Pac-Man
-                    False   #tunnel
+                    False,   #tunnel
+                    False    #duszeki
                     ]  
 
         self.counters = [0 for el in self.buildTab]
@@ -133,7 +133,11 @@ class BoardGenerator:
                 if self.boardTab[x][y] == 5:
                     pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
                     pygame.draw.rect(self.screen, RED, (self.dx+x*self.border+self.border/4,self.dy+y*self.border+self.border/4,self.border/2,self.border/2))
-
+                #duszek
+                if self.boardTab[x][y] == 6:
+                    pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
+                    pygame.draw.circle(self.screen, ORANGE, (self.dx+x*self.border+self.border/2, self.dy+y*self.border+self.border/2), self.border/3)
+                
         #rysowanie legendy
         font = pygame.font.Font('freesansbold.ttf', 20)
         font1=pygame.font.Font('freesansbold.ttf', 10)
@@ -144,6 +148,8 @@ class BoardGenerator:
         floor=font1.render('to set floor press: Q', True, BLACK, WHITE)
         tunel=font1.render('to set tunel press: R', True, BLACK, WHITE)
         bigdot=font1.render('to set BigDot press: E', True, BLACK, WHITE)
+        ghosts=font1.render('to set Ghosts press: G', True, BLACK, WHITE)
+
 
         textRect = text.get_rect()
         textRect.center = (self.dx//2, self.dy)
@@ -154,6 +160,7 @@ class BoardGenerator:
         self.screen.blit(floor,(self.dx//8, 3*self.dy))
         self.screen.blit(tunel,(self.dx//8, 3.5*self.dy))
         self.screen.blit(bigdot,(self.dx//8, 4*self.dy))
+        self.screen.blit(ghosts,(self.dx//8, 4.5*self.dy))
 
         #wyswietlanie statystyk 
 
@@ -163,16 +170,19 @@ class BoardGenerator:
         floorStats=font1.render('Floor:  '+(str)(self.counters[2]), True, BLACK, WHITE)
         tunelStats=font1.render('Tunels: '+(str)(self.counters[5])+ "/2", True, BLACK, WHITE)
         bigdotStats=font1.render('Big dots: '+(str)(self.counters[3]), True, BLACK, WHITE)
+        ghostsStats=font1.render('Ghosts: '+(str)(self.counters[6])+ "/4", True, BLACK, WHITE)
+
 
         statsRect = stats.get_rect()
-        statsRect.center = (self.dx//2, 5*self.dy)
+        statsRect.center = (self.dx//2, 5.5*self.dy)
 
         self.screen.blit(stats,statsRect)
-        self.screen.blit(wallStats,(self.dx//8, 5.5*self.dy))
-        self.screen.blit(pacmanStats,(self.dx//8, 6*self.dy))
-        self.screen.blit(floorStats,(self.dx//8,6.5*self.dy))
-        self.screen.blit(tunelStats,(self.dx//8, 7*self.dy))
-        self.screen.blit(bigdotStats,(self.dx//8, 7.5*self.dy))
+        self.screen.blit(wallStats,(self.dx//8, 6*self.dy))
+        self.screen.blit(pacmanStats,(self.dx//8, 6.5*self.dy))
+        self.screen.blit(floorStats,(self.dx//8, 7*self.dy))
+        self.screen.blit(tunelStats,(self.dx//8, 7.5*self.dy))
+        self.screen.blit(bigdotStats,(self.dx//8, 8*self.dy))
+        self.screen.blit(ghostsStats,(self.dx//8, 8.5*self.dy))
 
 
 
@@ -202,8 +212,8 @@ class BoardGenerator:
                     #jesli nie jestem gumka a dame pole to sciana to wychodze
                     if self.boardTab[i][j] == 1 and ind != 0: return
 
-                    #jesli chce postawic pacmana albo tunel to sprawdzam czy jeszcze moge je wgl wstawic i jak nie to wychodze
-                    if (ind==4 and self.counters[4]>0) or (ind==5 and self.counters[5]>1): return
+                    #jesli chce postawic pacmana albo tunel albo duszki to sprawdzam czy jeszcze moge je wgl wstawic i jak nie to wychodze
+                    if (ind==4 and self.counters[4]>0) or (ind==5 and self.counters[5]>1) or (ind==6 and self.counters[6]>3): return
 
                     #jesli chce postawic tunel to musi byc na brzegach ale nie w rogu!, jak nie to wychodze
                     if ind==5 and i != 0 and i != self.nX-1 and j != 0 and j != self.nY-1: return
@@ -213,7 +223,7 @@ class BoardGenerator:
                     if ind==5 and ((i==0 and j==0) or (i==0 and j==self.nY-1) or (i==self.nX-1 and j==0) or (i==self.nX-1 and j==self.nY-1)): return
 
                     #jesli nie ma podlogi a chce polozyc: duza kropke, pacmana, duszka, to wychodze
-                    if self.boardTab[i][j] != 2 and (ind==3 or ind==4): return    
+                    if self.boardTab[i][j] != 2 and (ind==3 or ind==4 or ind==6): return    
 
                     #jesli chce postawic podloge, to nie moze byc na skraju
                     if ind==2 and (i==0 or j==0 or i==self.nX-1 or j==self.nY-1): return
@@ -277,6 +287,7 @@ class BoardGenerator:
         path = filedialog.asksaveasfile(defaultextension=".npy")
         if path != None:
             np.save(path.name, self.boardTab)
+            np.save(path.name, np.array([self.difficulty_to_save]))
     
     
 
@@ -393,7 +404,10 @@ class BoardGenerator:
                     if event.key == pygame.K_r:
                         self.makeThemAllFalse(5)
                         self.buildTab[5] = not self.buildTab[5]
-                    
+                    #duszki
+                    if event.key == pygame.K_g:
+                        self.makeThemAllFalse(6)
+                        self.buildTab[6] = not self.buildTab[6]
                 
 
                 #keyupy

@@ -17,6 +17,7 @@ def runDraftGenerator():
     #zamykam okno
     root.destroy()
     #otwieram generator
+    print(path.name)
     bo = bg.BoardGenerator(path.name)
     bo.run()
 
