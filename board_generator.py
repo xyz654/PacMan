@@ -19,7 +19,7 @@ class BoardGenerator:
 
     
 
-    def __init__(self,tab):
+    def __init__(self,path):
         pygame.init()
 
         #glowne stale
@@ -54,8 +54,17 @@ class BoardGenerator:
         self.mousePos = pygame.mouse.get_pos()
         self.mouse_is_pressed = False
         self.boardTab=np.zeros((self.nX,self.nY))
-        if len(tab)!=0:
-            self.boardTab=tab
+        if len(path)!=0:
+
+            fp = open(path, 'r')
+            # read file
+            # print(fp.read())
+            for line in fp.read():
+                print(line)
+            # Closing the file after reading
+            fp.close()
+
+            
         
         #graf poruszania sie pac-mana - reprezentacja macierzowa 
         self.graph=np.zeros((self.nX*self.nY, self.nX*self.nY))
@@ -273,22 +282,8 @@ class BoardGenerator:
 
     def save(self):
 
-        # app = wx.App()
-
-        # # definicja okna dialogowego
-        # dlg = wx.TextEntryDialog(None, "Podaj tekst")
-
-        # # pokazanie okna i pobranie informacji o sposobie zamkniecia okna
-        # if dlg.ShowModal() == wx.ID_OK:
-        #     # wcisnieto 'OK' wiec pobieramy tekst wpisany w oknie
-        #     print( "Podano tekst:", dlg.GetValue())
-        # else:
-        #     # wcisnieto 'Anuluj'
-        #     print ("Zrezygnowano")
-
-
         print("zapisz")
-        f = open("aaa.txt",mode='w')
+        f = open("graf.npy",mode='w')
         for i in range(len(self.graph[0])):
             f.write(str(self.graph[i]))
             f.write("\n")
@@ -302,14 +297,7 @@ class BoardGenerator:
     def loadDraft(self):
         global boardTab
         #otwieranie okna z wyborem pliku
-
-        # window=tkinter.Tk()
-        # button=tkinter.Button(text="openn", command=openFile)
-        # button.pack()
-        # window.mainloop()
-
-        filepath=filedialog.askopenfilename()
-        print(filepath) 
+       
 
 
         # tab=np.zeros((20,25))
