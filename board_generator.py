@@ -1,7 +1,10 @@
 import pygame
 import sys
 import numpy as np
+
+import tkinter as tk
 from tkinter import filedialog
+from tkinter import ttk
 
 
 # Define colors
@@ -13,6 +16,8 @@ BLUE = (0, 0, 255)
 YELLOW_LIGHT = (255, 255, 102)
 YELLOW = (255, 255, 0)
 GREY = (211,211,211)
+
+
 
 
 class BoardGenerator:
@@ -51,6 +56,7 @@ class BoardGenerator:
 
 
         #glowne zmienne
+        self.isRunning = False
         self.mousePos = pygame.mouse.get_pos()
         self.mouse_is_pressed = False
         self.boardTab=np.zeros((self.nX,self.nY))
@@ -181,14 +187,6 @@ class BoardGenerator:
         save=font1.render('SAVE', True, BLACK, GREY)
         self.screen.blit(save,((self.width+self.dx+60), self.height+self.dy-30))
 
-        # #dodanie przycisku wczytaj wersje robocza
-        # font2=pygame.font.Font('freesansbold.ttf', 8)
-
-        # pygame.draw.rect(self.screen,GREY,((self.width+self.dx+20),self.height+self.dy-80,100,30),0,10)
-        # pygame.draw.rect(self.screen,BLACK,((self.width+self.dx+20),self.height+self.dy-80,100,30),1,10)
-
-        # save=font2.render('LOAD DRAFT BOARD', True, BLACK, GREY)
-        # self.screen.blit(save,((self.width+self.dx+25), self.height+self.dy-70))
 
 
     def build(self):
@@ -278,36 +276,60 @@ class BoardGenerator:
                 if self.boardTab[i][j]==5 and self.counters[5]==2:
                     self.graph[(int)(self.t1[1]*self.nX+self.t1[0])][(int)(self.t2[1]*self.nX+self.t2[0])]=1
                     self.graph[(int)(self.t2[1]*self.nX+self.t2[0])][(int)(self.t1[1]*self.nX+self.t1[0])]=1
-                    
 
-    def save(self):
+    
+    
 
-        print("zapisz")
-        f = open("graf.npy",mode='w')
-        for i in range(len(self.graph[0])):
-            f.write(str(self.graph[i]))
-            f.write("\n")
-        f.close()
-        print("zapisano")
+    def prepareToSave(self):
+
+        #funkcja do zapisywania
+        def save():
+            path = filedialog.asksaveasfile(defaultextension=".npy")
+            print(path.name)
+
+        #tworze okno
+        root = tk.Tk()
+        #ustawiam tytul
+        root.title("Prepare to save")
+
+        #rozmiary
+        window_width = 700
+        window_height = 600
+
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+
+        centerX = int(screen_width/2 - window_width/2)
+        centerY = int(screen_height/2 - window_height/2)
+
+        root.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
+
+        #mozliwosc zmiany rozmiaru
+        root.resizable(True, True)
+
+        #widgety
+        ttk.Label(root, text='Fill the details:').pack()
+        ttk.Label(root, text="Set the name:").pack()
+        ttk.Label(root, text="Set the difficulty:").pack()
+
+        ttk.Button(root, text="Save", command=save).pack()
+
+        root.mainloop()
 
     def openFile(self):
         filepath=filedialog.askopenfilename()
         print(filepath)
 
+
+
     def loadDraft(self):
-        global boardTab
-        #otwieranie okna z wyborem pliku
-       
-
-
-        # tab=np.zeros((20,25))
-        # tab[1][1]=2
-        # boardTab=tab
+        pass
 
     def run(self):
 
         #glowna petla
-        while True:
+        self.isRunning = True
+        while self.isRunning:
 
             #pobieranie pozycji myszki
             self.mousePos = pygame.mouse.get_pos()
@@ -327,16 +349,9 @@ class BoardGenerator:
             if self.mouse_is_pressed and x>0 and x<100 and y>0 and y<30:
                 #zapisz
                 self.makeGraph()
-                self.save()
+                self.isRunning = False 
 
-            #draft version
-            # if self.mouse_is_pressed and x>0 and x<100 and y<-10 and y>-40:
-            #     #zapisz
-            #     self.loadDraft()
             
-
-        
-
             #przechwytywanie zdarzen
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -385,6 +400,13 @@ class BoardGenerator:
             pygame.display.update()
             #kontroluje FPS
             self.clock.tick(self.FPS)
+        
+        #dalsze kroki
+        if not self.isRunning:
+            pygame.quit()
+            self.prepareToSave()
                 
 
      
+bo = BoardGenerator([])
+bo.run()
