@@ -63,9 +63,9 @@ class BoardGenerator:
         self.mousePos = pygame.mouse.get_pos()
         self.mouse_is_pressed = False
         self.boardTab=np.zeros((self.nX,self.nY))
-        if len(path)!=0:
-            self.boardTab=np.load(path)
-            # self.difficulty=np.load(path)            
+        
+        #ladowanie planszy
+        self.load(path)
         
         #graf poruszania sie pac-mana - reprezentacja macierzowa 
         self.graph=np.zeros((self.nX*self.nY, self.nX*self.nY))
@@ -286,10 +286,18 @@ class BoardGenerator:
     def save(self):
         path = filedialog.asksaveasfile(defaultextension=".npy")
         if path != None:
-            np.save(path.name, self.boardTab)
-            np.save(path.name, np.array([self.difficulty_to_save]))
+            with open(path.name, 'wb') as f:
+                for i in range(self.nX):
+                    for j in range(self.nY):
+                        np.save(f, np.array([self.boardTab[i][j]]))
+                np.save(f, np.array([self.difficulty_to_save]))
     
-    
+    def load(self, path):
+        if len(path)!=0:
+            with open(path, 'rb') as f:
+                for i in range(self.nX):
+                    for j in range(self.nY):
+                        self.boardTab[i][j]=np.load(f)[0]
 
     def prepareToSave(self):
         #funkcja do obslugi slidera
