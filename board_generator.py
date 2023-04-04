@@ -63,9 +63,16 @@ class BoardGenerator:
         self.mousePos = pygame.mouse.get_pos()
         self.mouse_is_pressed = False
         self.boardTab=np.zeros((self.nX,self.nY))
+        self.isDraftBoard=1
+
+        #zmienne do sliderow
+        self.difficulty=1
+        self.difficulty_to_save = 1
+        self.hp=1
+        self.hp_to_save = 1
+        self.cherry=30
+        self.cherry_to_save=30
         
-        #ladowanie planszy
-        self.load(path)
         
         #graf poruszania sie pac-mana - reprezentacja macierzowa 
         self.graph=np.zeros((self.nX*self.nY, self.nX*self.nY))
@@ -85,6 +92,9 @@ class BoardGenerator:
         #wsp tuneli 
         self.t1=np.zeros(2)
         self.t2=np.zeros(2)
+
+        #ladowanie planszy
+        self.load(path)
 
 
     #funkcja ustawiajaca wszytskie wskazniki budowy na False, poza jednym wskazanym w argumencie
@@ -282,7 +292,26 @@ class BoardGenerator:
                     self.graph[(int)(self.t1[1]*self.nX+self.t1[0])][(int)(self.t2[1]*self.nX+self.t2[0])]=1
                     self.graph[(int)(self.t2[1]*self.nX+self.t2[0])][(int)(self.t1[1]*self.nX+self.t1[0])]=1
 
-    
+
+    def dfs(self, i, j):
+
+
+
+    def check_correct(self):
+        #sprawdzanie popprawnosci plansy przed zapisem
+        for i in range(self.nX):
+            for j in range(self.nY):
+                if self.boardTab[i][j]==0:return False
+
+        #sprawdzanie czy jest wszystko
+        if self.counters[4]!=1: return False
+        if self.counters[5]!=2: return False
+        if self.counters[6]!=4: return False
+
+        #sprawdzic czy jest spojne 
+        !!!!! tu wywolac dfs dla kazdego
+
+
     def save(self):
         path = filedialog.asksaveasfile(defaultextension=".npy")
         if path != None:
@@ -290,20 +319,27 @@ class BoardGenerator:
                 for i in range(self.nX):
                     for j in range(self.nY):
                         np.save(f, np.array([self.boardTab[i][j]]))
-                np.save(f, np.array([self.difficulty_to_save]))
+                np.save(f, np.array([self.difficulty_to_save, self.cherry_to_save, self.hp_to_save, self.isDraftBoard]))
+
     
     def load(self, path):
         if len(path)!=0:
             with open(path, 'rb') as f:
                 for i in range(self.nX):
                     for j in range(self.nY):
-                        self.boardTab[i][j]=np.load(f)[0]
+                        self.boardTab[i][j] = np.load(f)[0]
+                        self.counters[int(self.boardTab[i][j])] += 1
 
     def prepareToSave(self):
         #funkcja do obslugi slidera
-        def countSlider(event):
+        def updateSlider(event):
             self.difficulty_to_save = int(round(self.difficulty.get(), 0))
-            sliderLabel.config(text="Current difficulty: "+str(self.difficulty_to_save))
+            self.hp_to_save = int(round(self.hp.get(), 0))
+            self.cherry_to_save=int(round(self.cherry.get(), 0))
+
+            difficultyLabel.config(text="Current difficulty: "+str(self.difficulty_to_save))
+            hpLabel.config(text="Current hp: "+str(self.hp_to_save))
+            cherryLabel.config(text="Current time: "+str(self.cherry_to_save)+"s")
 
         #tworze okno
         root = tk.Tk()
@@ -335,12 +371,44 @@ class BoardGenerator:
                             to=5,
                             orient='horizontal', 
                             variable=self.difficulty,
-                            command=countSlider
+                            command=updateSlider
                         )
         slider.pack()
 
-        sliderLabel = ttk.Label(root, text="Current difficulty: "+str(self.difficulty_to_save))
-        sliderLabel.pack()
+        difficultyLabel = ttk.Label(root, text="Current difficulty: "+str(self.difficulty_to_save))
+        difficultyLabel.pack()
+
+        #pkt zycia pac mana
+
+        ttk.Label(root, text="Set the start hp points:").pack()
+        self.hp = tk.DoubleVar()
+        ttk.Scale(
+                            root,
+                            from_=1,
+                            to=5,
+                            orient='horizontal', 
+                            variable=self.hp,
+                            command=updateSlider
+                        ).pack()
+
+        hpLabel = ttk.Label(root, text="Current hp: "+str(self.hp_to_save))
+        hpLabel.pack()
+
+        #czestotliwosc wisienek
+
+        ttk.Label(root, text="Set the cherries respawn time:").pack()
+        self.cherry = tk.DoubleVar()
+        ttk.Scale(
+                            root,
+                            from_=30,
+                            to=60,
+                            orient='horizontal', 
+                            variable=self.cherry,
+                            command=updateSlider
+                        ).pack()
+
+        cherryLabel = ttk.Label(root, text="Current time: "+str(self.cherry_to_save)+"s")
+        cherryLabel.pack()
 
 
         ttk.Button(root, text="Save", command=self.save).pack()

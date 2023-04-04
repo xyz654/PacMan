@@ -14,11 +14,12 @@ def runNewGenerator():
 def runDraftGenerator():
     #pobieram sciezke
     path = filedialog.askopenfile()
-    #zamykam okno
-    root.destroy()
-    #otwieram generator
-    bo = bg.BoardGenerator(path.name)
-    bo.run()
+    if path!=None:
+        #zamykam okno
+        root.destroy()
+        #otwieram generator
+        bo = bg.BoardGenerator(path.name)
+        bo.run()
 
 #tworze okno
 root = tk.Tk()
