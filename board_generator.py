@@ -296,9 +296,8 @@ class BoardGenerator:
         visited[w1] = True
         for i in range(len(self.graph[w1])):
             if self.graph[w1][i] == 1 and not visited[i]:
-                if self.dfs(i, w2, visited.copy()):
+                if self.dfs(i, w2, visited):
                     return True
-
         return False
 
     def check_correct(self):
@@ -316,16 +315,18 @@ class BoardGenerator:
         #sprawdzanie czy jest spojne
         for i in range(self.nX):
             for j in range(self.nY):
-                if self.boardTab[i][j] != 1 and self.boardTab[i][j] != 5 and self.boardTab[i][j] != 0:
+                if self.boardTab[i][j] == 2:
+                    flag = True
                     w1 = j*self.nX + i
                     for k in range(self.nX):
                         for l in range(self.nY):
                             if self.boardTab[k][l] != 1 and self.boardTab[k][l] != 5 and self.boardTab[k][l] != 0:
                                 w2 = l*self.nX+k
                                 if w2 > w1:
-                                    if not self.dfs(w1, w2, [False for i in range(self.nX*self.nY)]):
-                                        return False
-        return True
+                                    flag = flag and self.dfs(w1, w2, [False for i in range(self.nX*self.nY)])
+                    return flag
+                                        
+        return False
 
     def save(self):
         path = filedialog.asksaveasfile(defaultextension=".npy")
