@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-import board_generator as bg
 import os
+import board_generator as bg
+import main
 
 
 def runNewGenerator():
@@ -23,6 +24,13 @@ def runDraftGenerator():
             #otwieram generator
             bo = bg.BoardGenerator(path.name)
             bo.run()
+
+def runGame():
+    #zamykam okno
+    root.destroy()
+    #uruchamiam gre
+    game = main.Game()
+    game.run()
 
 #tworze okno
 root = tk.Tk()
@@ -47,7 +55,7 @@ root.resizable(True, True)
 
 #widgety
 ttk.Label(root, text='Welcome to Pac-Man!').pack()
-ttk.Button(root, text='Play!').pack()
+ttk.Button(root, text='Play!', command=runGame).pack()
 ttk.Button(root, text='Create new board!', command=runNewGenerator).pack()
 ttk.Button(root, text='Load draft board!', command=runDraftGenerator).pack()
 
