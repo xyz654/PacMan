@@ -1,6 +1,8 @@
 import pygame
 import sys
 import numpy as np
+from enums import Direction
+from player import PacMan
 
 # Define colors
 BLACK = (0, 0, 0)
@@ -43,11 +45,15 @@ class Game:
         self.hp = 1
         self.boostTime = 1
 
+        #gracz
+        self.playerMoveTime = 20
+        self.player = None
+
         #pobieram dane i je przypisuje do odpowiednich zmiennych
         self.boardTab = np.zeros((self.nX, self.nY))
         self.loadData("./first.npy")
 
-        #tworze graf w postaci macierzowej
+        #tworze graf w postaci listy sasiedztwa
         self.graph = None
         self.makeGraph()
 
@@ -56,31 +62,28 @@ class Game:
         pygame.display.set_caption("Pac-Man")
 
         # zegar
+        self.counter = 1
         self.clock = pygame.time.Clock()
 
     def makeGraph(self):
         tunels = []
-        self.graph = np.zeros((self.nX*self.nY, self.nX*self.nY))
+        self.graph = [[[] for j in range(self.nY)] for i in range(self.nX)]
         for i in range(self.nX):
             for j in range(self.nY):
                 #jezeli jest tam podloga - to dodaje do grafu
                 if self.boardTab[i][j] != 1 and self.boardTab[i][j] != 5 and self.boardTab[i][j] != 0:
                     #lewo
-                    if self.boardTab[i-1][j]!=1:
-                        self.graph[j*self.nX+i][j*self.nX+i-1]=1
-                        self.graph[j*self.nX+i-1][j*self.nX+i]=1
+                    if self.boardTab[i-1][j] != 1:
+                        self.graph[i][j].append((i-1,j))
                     #prawo
-                    if self.boardTab[i+1][j]!=1: 
-                        self.graph[j*self.nX+i][j*self.nX+i+1]=1
-                        self.graph[j*self.nX+i+1][j*self.nX+i]=1
+                    if self.boardTab[i+1][j] != 1: 
+                        self.graph[i][j].append((i+1,j))
                     #gora
-                    if self.boardTab[i][j-1]!=1:
-                        self.graph[j*self.nX+i][(j-1)*self.nX+i]=1
-                        self.graph[(j-1)*self.nX+i][j*self.nX+i]=1
+                    if self.boardTab[i][j-1] != 1:
+                        self.graph[i][j].append((i,j-1))
                     #dol
-                    if self.boardTab[i][j+1]!=1:
-                        self.graph[j*self.nX+i][(j+1)*self.nX+i]=1
-                        self.graph[(j+1)*self.nX+i][j*self.nX+i]=1
+                    if self.boardTab[i][j+1] != 1:
+                        self.graph[i][j].append((i,j+1))
 
                 if self.boardTab[i][j] == 5:
                     tunels.append((i, j))
@@ -88,8 +91,8 @@ class Game:
         #obsluga tuneli
         t1 = tunels[0]
         t2 = tunels[1]
-        self.graph[(int)(t1[1]*self.nX+t1[0])][(int)(t2[1]*self.nX+t2[0])]=1
-        self.graph[(int)(t2[1]*self.nX+t2[0])][(int)(t1[1]*self.nX+t1[0])]=1
+        self.graph[t1[0]][t1[1]].append((t2[0], t2[1]))
+        self.graph[t2[0]][t2[1]].append((t1[0], t1[1]))
 
     def loadData(self, path):
         if len(path)!=0:
@@ -115,6 +118,7 @@ class Game:
                         self.boardTab[i][j] = 0
                     #Pac-Man
                     elif self.boardTab[i][j] == 4:
+                        self.player = PacMan(i,j)
                         self.boardTab[i][j] = 2
     
     def draw(self):
@@ -138,9 +142,43 @@ class Game:
                 if self.boardTab[x][y] == 3:
                     pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
                     pygame.draw.circle(self.screen, YELLOW_LIGHT, (self.dx+x*self.border+self.border/2, self.dy+y*self.border+self.border/2), self.border/4)
-                
+        
+        #rysowanie Pac-Mana
+        pygame.draw.circle(self.screen, YELLOW, (self.dx+self.player.x*self.border+self.border/2, self.dy+self.player.y*self.border+self.border/2), self.border/3)
+
+    def moveAll(self):
+        #Pac-Man
+        if self.counter % self.playerMoveTime == 0:
+            xp = self.player.x
+            yp = self.player.y
+            neighbours = self.graph[xp][yp]
+
+            #zmiana kierunku
+            if self.player.nextDirection == Direction.NORTH and (xp, yp-1) in neighbours:
+                self.player.direction = self.player.nextDirection
+            elif self.player.nextDirection == Direction.SOUTH and (xp, yp+1) in neighbours:
+                self.player.direction = self.player.nextDirection
+            elif self.player.nextDirection == Direction.EAST and (xp+1, yp) in neighbours:
+                self.player.direction = self.player.nextDirection
+            elif self.player.nextDirection == Direction.WEST and (xp-1, yp) in neighbours:
+                self.player.direction = self.player.nextDirection
+            
+            #ruch gracza
+            if self.player.direction == Direction.NORTH and (xp, yp-1) in neighbours:
+                self.player.y -= 1
+            elif self.player.direction == Direction.SOUTH and (xp, yp+1) in neighbours:
+                self.player.y += 1
+            elif self.player.direction == Direction.EAST and (xp+1, yp) in neighbours:
+                self.player.x += 1
+            elif self.player.direction == Direction.WEST and (xp-1, yp) in neighbours:
+                self.player.x -= 1
+
     def run(self):
         while True:
+            #ruszanie
+            self.moveAll()
+
+            #rysowanie
             self.draw()
 
             #przechwytywanie zdarzen
@@ -156,16 +194,30 @@ class Game:
                         self.mouse_is_pressed = True
 
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_x:
-                        pass
+                    #sterowanie Pac-Manem
+                    if event.key == pygame.K_w:
+                        self.player.nextDirection = Direction.NORTH
+                    if event.key == pygame.K_d:
+                        self.player.nextDirection = Direction.EAST
+                    if event.key == pygame.K_s:
+                        self.player.nextDirection = Direction.SOUTH
+                    if event.key == pygame.K_a:
+                        self.player.nextDirection = Direction.WEST
+
             
             #odswiezanie okna
             pygame.display.update()
+
+            #obsluga licznika
+            self.counter += 1
+            if self.counter >= 1000:
+                self.counter = 0
+
             #kontroluje FPS
             self.clock.tick(self.FPS)
 
 
 
 
-# game = Game()
-# game.run()
+game = Game()
+game.run()
