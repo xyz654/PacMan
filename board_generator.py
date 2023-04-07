@@ -81,13 +81,13 @@ class BoardGenerator:
 
         #lista budowy
         self.buildTab = [False,  #rubber 
-                    False,  #wall
-                    False,  #floor
-                    False,  #big dot
-                    False,  #Pac-Man
-                    False,   #tunnel
-                    False    #duszeki
-                    ]  
+                        False,  #wall
+                        False,  #floor
+                        False,  #big dot
+                        False,  #Pac-Man
+                        False,   #tunnel
+                        False    #duszki
+                        ]  
 
         self.counters = [0 for el in self.buildTab]
 
@@ -181,7 +181,7 @@ class BoardGenerator:
         floorStats=font1.render('Floor:  '+(str)(self.counters[2]), True, BLACK, WHITE)
         tunelStats=font1.render('Tunels: '+(str)(self.counters[5])+ "/2", True, BLACK, WHITE)
         bigdotStats=font1.render('Big dots: '+(str)(self.counters[3]), True, BLACK, WHITE)
-        ghostsStats=font1.render('Ghosts: '+(str)(self.counters[6])+ "/4", True, BLACK, WHITE)
+        ghostsStats=font1.render('Ghosts: '+(str)(self.counters[6]), True, BLACK, WHITE)
 
 
         statsRect = stats.get_rect()
@@ -222,14 +222,13 @@ class BoardGenerator:
                     #jesli nie jestem gumka a dame pole to sciana to wychodze
                     if self.boardTab[i][j] == 1 and ind != 0: return
 
-                    #jesli chce postawic pacmana albo tunel albo duszki to sprawdzam czy jeszcze moge je wgl wstawic i jak nie to wychodze
-                    if (ind==4 and self.counters[4]>0) or (ind==5 and self.counters[5]>1) or (ind==6 and self.counters[6]>3): return
+                    #jesli chce postawic pacmana albo tunel to sprawdzam czy jeszcze moge je wgl wstawic i jak nie to wychodze
+                    if (ind==4 and self.counters[4]>0) or (ind==5 and self.counters[5]>1): return
 
                     #jesli chce postawic tunel to musi byc na brzegach ale nie w rogu!, jak nie to wychodze
                     if ind==5 and i != 0 and i != self.nX-1 and j != 0 and j != self.nY-1: return
 
                     #jesli chce postawic tunel to nie moze byc w rogu!, jak nie to wychodze
-
                     if ind==5 and ((i==0 and j==0) or (i==0 and j==self.nY-1) or (i==self.nX-1 and j==0) or (i==self.nX-1 and j==self.nY-1)): return
 
                     #jesli nie ma podlogi a chce polozyc: duza kropke, pacmana, duszka, to wychodze
@@ -307,12 +306,13 @@ class BoardGenerator:
         #sprawdzanie popprawnosci plansy przed zapisem
         for i in range(self.nX):
             for j in range(self.nY):
-                if self.boardTab[i][j]==0:return False
+                if self.boardTab[i][j]==0:
+                    return False
 
         #sprawdzanie czy jest wszystko
-        if self.counters[4]!=1: return False
-        if self.counters[5]!=2: return False
-        if self.counters[6]!=4: return False
+        if self.counters[4] != 1: return False
+        if self.counters[5] != 2: return False
+        if self.counters[6] < 4: return False
 
         #sprawdzanie czy jest spojne
         for i in range(self.nX):
