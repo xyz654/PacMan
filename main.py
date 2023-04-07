@@ -167,5 +167,5 @@ class Game:
 
 
 
-game = Game()
-game.run()
+# game = Game()
+# game.run()
