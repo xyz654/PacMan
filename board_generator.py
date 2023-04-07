@@ -286,10 +286,9 @@ class BoardGenerator:
                         self.graph[j*self.nX+i][(j+1)*self.nX+i]=1
                         self.graph[(j+1)*self.nX+i][j*self.nX+i]=1
 
-                #obsluga tuneli
-                if self.boardTab[i][j]==5 and self.counters[5]==2:
-                    self.graph[(int)(self.t1[1]*self.nX+self.t1[0])][(int)(self.t2[1]*self.nX+self.t2[0])]=1
-                    self.graph[(int)(self.t2[1]*self.nX+self.t2[0])][(int)(self.t1[1]*self.nX+self.t1[0])]=1
+        #obsluga tuneli
+        self.graph[(int)(self.t1[1]*self.nX+self.t1[0])][(int)(self.t2[1]*self.nX+self.t2[0])]=1
+        self.graph[(int)(self.t2[1]*self.nX+self.t2[0])][(int)(self.t1[1]*self.nX+self.t1[0])]=1
 
     def dfs(self, w1, w2, visited):
         if w1 == w2:

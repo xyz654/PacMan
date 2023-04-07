@@ -38,11 +38,18 @@ class Game:
 
         #zmienne do przechowywania danych gry
         self.ghostRespawnArea = []
-
+        self.difficulty = 1
+        self.cherryTime = 1
+        self.hp = 1
+        self.boostTime = 1
 
         #pobieram dane i je przypisuje do odpowiednich zmiennych
         self.boardTab = np.zeros((self.nX, self.nY))
         self.loadData("./first.npy")
+
+        #tworze graf w postaci macierzowej
+        self.graph = None
+        self.makeGraph()
 
         #okno
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
@@ -51,14 +58,50 @@ class Game:
         # zegar
         self.clock = pygame.time.Clock()
 
+    def makeGraph(self):
+        tunels = []
+        self.graph = np.zeros((self.nX*self.nY, self.nX*self.nY))
+        for i in range(self.nX):
+            for j in range(self.nY):
+                #jezeli jest tam podloga - to dodaje do grafu
+                if self.boardTab[i][j] != 1 and self.boardTab[i][j] != 5 and self.boardTab[i][j] != 0:
+                    #lewo
+                    if self.boardTab[i-1][j]!=1:
+                        self.graph[j*self.nX+i][j*self.nX+i-1]=1
+                        self.graph[j*self.nX+i-1][j*self.nX+i]=1
+                    #prawo
+                    if self.boardTab[i+1][j]!=1: 
+                        self.graph[j*self.nX+i][j*self.nX+i+1]=1
+                        self.graph[j*self.nX+i+1][j*self.nX+i]=1
+                    #gora
+                    if self.boardTab[i][j-1]!=1:
+                        self.graph[j*self.nX+i][(j-1)*self.nX+i]=1
+                        self.graph[(j-1)*self.nX+i][j*self.nX+i]=1
+                    #dol
+                    if self.boardTab[i][j+1]!=1:
+                        self.graph[j*self.nX+i][(j+1)*self.nX+i]=1
+                        self.graph[(j+1)*self.nX+i][j*self.nX+i]=1
 
+                if self.boardTab[i][j] == 5:
+                    tunels.append((i, j))
 
+        #obsluga tuneli
+        t1 = tunels[0]
+        t2 = tunels[1]
+        self.graph[(int)(t1[1]*self.nX+t1[0])][(int)(t2[1]*self.nX+t2[0])]=1
+        self.graph[(int)(t2[1]*self.nX+t2[0])][(int)(t1[1]*self.nX+t1[0])]=1
 
     def loadData(self, path):
         if len(path)!=0:
             #pobieram dane z pliku
             with open(path, 'rb') as f:
+                #zbieranie statystyk
                 stats = np.load(f)
+                self.difficulty = stats[0]
+                self.cherryTime = stats[1]
+                self.hp = stats[2]
+                self.boostTime = stats[4]
+                #zbieranie planszy
                 for i in range(self.nX):
                     for j in range(self.nY):
                         self.boardTab[i][j] = np.load(f)[0]
@@ -74,7 +117,6 @@ class Game:
                     elif self.boardTab[i][j] == 4:
                         self.boardTab[i][j] = 2
     
-
     def draw(self):
         #wypelnianie ekranu kolorem
         self.screen.fill(WHITE)
@@ -97,7 +139,6 @@ class Game:
                     pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
                     pygame.draw.circle(self.screen, YELLOW_LIGHT, (self.dx+x*self.border+self.border/2, self.dy+y*self.border+self.border/2), self.border/4)
                 
-
     def run(self):
         while True:
             self.draw()
