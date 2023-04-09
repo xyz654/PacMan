@@ -29,7 +29,7 @@ def runGame():
     #zamykam okno
     root.destroy()
     #uruchamiam gre
-    game = main.Game()
+    game = main.Game("./first.npy")
     game.run()
 
 #tworze okno

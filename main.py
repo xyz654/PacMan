@@ -18,7 +18,7 @@ ORANGE =(255,69,0)
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, path):
         pygame.init()
 
         #glowne stale
@@ -51,7 +51,7 @@ class Game:
 
         #pobieram dane i je przypisuje do odpowiednich zmiennych
         self.boardTab = np.zeros((self.nX, self.nY))
-        self.loadData("./first.npy")
+        self.loadData(path)
 
         #tworze graf w postaci listy sasiedztwa
         self.graph = None
@@ -118,7 +118,7 @@ class Game:
                         self.boardTab[i][j] = 0
                     #Pac-Man
                     elif self.boardTab[i][j] == 4:
-                        self.player = PacMan(i,j)
+                        self.player = PacMan(i,j, self.playerMoveTime)
                         self.boardTab[i][j] = 2
     
     def draw(self):
@@ -144,11 +144,16 @@ class Game:
                     pygame.draw.circle(self.screen, YELLOW_LIGHT, (self.dx+x*self.border+self.border/2, self.dy+y*self.border+self.border/2), self.border/4)
         
         #rysowanie Pac-Mana
-        pygame.draw.circle(self.screen, YELLOW, (self.dx+self.player.x*self.border+self.border/2, self.dy+self.player.y*self.border+self.border/2), self.border/3)
+        pygame.draw.circle(self.screen, YELLOW, (self.dx+self.player.xNormalized*self.border+self.border/2, self.dy+self.player.yNormalized*self.border+self.border/2), self.border/3)
 
     def moveAll(self):
+        #ZMIANY KIERUNKU RUCHU
         #Pac-Man
         if self.counter % self.playerMoveTime == 0:
+            #potwierdzam poprzednia zmiane pozycji
+            self.player.confirmPosition()
+
+            #pobieram dane do zmiennych lokalnych by latwiej sie ich uzywalo
             xp = self.player.x
             yp = self.player.y
             neighbours = self.graph[xp][yp]
@@ -162,16 +167,21 @@ class Game:
                 self.player.direction = self.player.nextDirection
             elif self.player.nextDirection == Direction.WEST and (xp-1, yp) in neighbours:
                 self.player.direction = self.player.nextDirection
+            #jesli nie ma podanego nowego kierunku to sprawdzam czy nadal moge isc tam gdzie ide
+            elif self.player.direction == Direction.NORTH and (xp, yp-1) not in neighbours:
+                self.player.direction = None
+            elif self.player.direction == Direction.SOUTH and (xp, yp+1) not in neighbours:
+                self.player.direction = None
+            elif self.player.direction == Direction.EAST and (xp+1, yp) not in neighbours:
+                self.player.direction = None
+            elif self.player.direction == Direction.WEST and (xp-1, yp) not in neighbours:
+                self.player.direction = None
             
-            #ruch gracza
-            if self.player.direction == Direction.NORTH and (xp, yp-1) in neighbours:
-                self.player.y -= 1
-            elif self.player.direction == Direction.SOUTH and (xp, yp+1) in neighbours:
-                self.player.y += 1
-            elif self.player.direction == Direction.EAST and (xp+1, yp) in neighbours:
-                self.player.x += 1
-            elif self.player.direction == Direction.WEST and (xp-1, yp) in neighbours:
-                self.player.x -= 1
+
+        #RUCH
+        #Pac-Man
+        self.player.move()
+
 
     def run(self):
         while True:
@@ -219,5 +229,5 @@ class Game:
 
 
 
-game = Game()
+game = Game("./first.npy")
 game.run()
