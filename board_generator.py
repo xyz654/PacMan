@@ -333,6 +333,7 @@ class BoardGenerator:
         path = filedialog.asksaveasfile(defaultextension=".npy")
         if path != None:
             with open(path.name, 'wb') as f:
+                print(self.isDraftBoard)
                 np.save(f, np.array([self.difficulty_to_save, self.cherry_to_save, self.hp_to_save, self.isDraftBoard, self.boostTime_to_save]))
                 for i in range(self.nX):
                     for j in range(self.nY):
@@ -363,8 +364,10 @@ class BoardGenerator:
         def ifCorrect():
             result = self.check_correct()
             if result:
+                self.isDraftBoard=0
                 correctButton.configure(text="Board is correct")
             else:
+                self.isDraftBoard=1
                 correctButton.configure(text="Board is incorrect")
 
         #tworze okno

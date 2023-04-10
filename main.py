@@ -229,5 +229,5 @@ class Game:
 
 
 
-game = Game("./first.npy")
-game.run()
+# game = Game("./first.npy")
+# game.run()
