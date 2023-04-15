@@ -329,6 +329,16 @@ class Game:
             #pobieram dane do zmiennych lokalnych by latwiej sie ich uzywalo
             xp = self.player.x
             yp = self.player.y
+
+            #zjadam to co mam na drodze
+            #male kropki
+            if self.boardTab[xp][yp] == 2:
+                self.boardTab[xp][yp] = 0
+            #duze kropki
+            if self.boardTab[xp][yp] == 3:
+                self.boardTab[xp][yp] = 0
+
+
             neighbours = self.graph[xp][yp]
 
             #zmiana kierunku
