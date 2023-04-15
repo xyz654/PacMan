@@ -55,6 +55,9 @@ class Game:
         self.boardTab = np.zeros((self.nX, self.nY))
         self.loadData(path)
 
+        #laduje obrazki
+        self.loadImages()
+
         #tworze graf w postaci listy sasiedztwa
         self.tunels = []
         self.graph = None
@@ -67,6 +70,7 @@ class Game:
         # zegar
         self.counter = 1
         self.clock = pygame.time.Clock()
+
 
     def makeGraph(self):
         self.tunels = []
@@ -172,6 +176,82 @@ class Game:
         self.dx = (self.screen_width-self.width)/2
         self.dy = (self.screen_height-self.height)/2
 
+    def loadImages(self):
+        self.ns = pygame.image.load('pion.png')
+        self.ns = pygame.transform.scale(self.ns, (self.border, self.border))
+
+        self.we = pygame.image.load('poziom.png')
+        self.we = pygame.transform.scale(self.we, (self.border, self.border))
+
+        self.ne = pygame.image.load('naroznik1.png')
+        self.ne = pygame.transform.scale(self.ne, (self.border, self.border))
+
+        self.se = pygame.image.load('naroznik2.png')
+        self.se = pygame.transform.scale(self.se, (self.border, self.border))
+
+        self.sw = pygame.image.load('naroznik3.png')
+        self.sw = pygame.transform.scale(self.sw, (self.border, self.border))
+
+        self.nw = pygame.image.load('naroznik4.png')
+        self.nw = pygame.transform.scale(self.nw, (self.border, self.border))
+
+        self.nwe = pygame.image.load('trojka1.png')
+        self.nwe = pygame.transform.scale(self.nwe, (self.border, self.border))
+
+        self.ens = pygame.image.load('trojka2.png')
+        self.ens = pygame.transform.scale(self.ens, (self.border, self.border))
+
+        self.swe = pygame.image.load('trojka3.png')
+        self.swe = pygame.transform.scale(self.swe, (self.border, self.border))
+
+        self.wns = pygame.image.load('trojka4.png')
+        self.wns = pygame.transform.scale(self.wns, (self.border, self.border))
+
+
+
+
+    def drawWall(self, x, y):
+        #lista zawierajaca kierunki rozbudowy muru
+        directionsTab = [False, False, False, False]
+        #polnoc
+        if y > 0 and self.boardTab[x][y-1] == 1:
+            directionsTab[0] = True
+        #wschod
+        if x < self.nX-1 and self.boardTab[x+1][y] == 1:
+            directionsTab[1] = True
+        #poludnie
+        if y < self.nY-1 and self.boardTab[x][y+1] == 1:
+            directionsTab[2] = True
+        #zachod
+        if x > 0 and self.boardTab[x-1][y] == 1:
+            directionsTab[3] = True
+
+        #trojki
+        if directionsTab[3] and directionsTab[0] and directionsTab[1]:
+            self.screen.blit(self.nwe, (self.dx+x*self.border,self.dy+y*self.border))
+        elif directionsTab[0] and directionsTab[1] and directionsTab[2]:
+            self.screen.blit(self.ens, (self.dx+x*self.border,self.dy+y*self.border))
+        elif directionsTab[1] and directionsTab[2] and directionsTab[3]:
+            self.screen.blit(self.swe, (self.dx+x*self.border,self.dy+y*self.border))
+        elif directionsTab[2] and directionsTab[3] and directionsTab[1]:
+            self.screen.blit(self.wns, (self.dx+x*self.border,self.dy+y*self.border))
+        #pion
+        elif directionsTab[0] and directionsTab[2]:
+            self.screen.blit(self.ns, (self.dx+x*self.border,self.dy+y*self.border))
+        #poziom
+        elif directionsTab[1] and directionsTab[3]:
+            self.screen.blit(self.we, (self.dx+x*self.border,self.dy+y*self.border))
+        #narozniki
+        elif directionsTab[0] and directionsTab[1]:
+            self.screen.blit(self.ne, (self.dx+x*self.border,self.dy+y*self.border))
+        elif directionsTab[1] and directionsTab[2]:
+            self.screen.blit(self.se, (self.dx+x*self.border,self.dy+y*self.border))
+        elif directionsTab[2] and directionsTab[3]:
+            self.screen.blit(self.sw, (self.dx+x*self.border,self.dy+y*self.border))
+        elif directionsTab[3] and directionsTab[0]:
+            self.screen.blit(self.nw, (self.dx+x*self.border,self.dy+y*self.border))
+        
+
     def draw(self):
         #wypelnianie ekranu kolorem
         self.screen.fill(BLACK)
@@ -184,7 +264,7 @@ class Game:
                     pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
                 #wall
                 if self.boardTab[x][y] == 1:
-                    pygame.draw.rect(self.screen,BLUE,(self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
+                    self.drawWall(x, y)
                 #floor with dot
                 if self.boardTab[x][y] == 2:
                     pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
@@ -274,6 +354,7 @@ class Game:
                 #zmiana rozmiaru okna - koniecznosc przeliczenia niektorych zmiennych
                 elif event.type == pygame.WINDOWEXPOSED:
                     self.calculateScreen()
+                    self.loadImages()
 
                 #keydowny
                 if event.type == pygame.MOUSEBUTTONDOWN:
