@@ -71,7 +71,6 @@ class Game:
         self.counter = 1
         self.clock = pygame.time.Clock()
 
-
     def makeGraph(self):
         self.tunels = []
         self.graph = [[[] for j in range(self.nY)] for i in range(self.nX)]
@@ -159,7 +158,7 @@ class Game:
                         self.boardTab[i][j] = 0
                     #Pac-Man
                     elif self.boardTab[i][j] == 4:
-                        self.player = PacMan(i,j, self.playerMoveTime)
+                        self.player = PacMan(i,j, self.playerMoveTime, 0.5)
                         self.boardTab[i][j] = 2
     
     def calculateScreen(self):
@@ -177,38 +176,55 @@ class Game:
         self.dy = (self.screen_height-self.height)/2
 
     def loadImages(self):
-        self.ns = pygame.image.load('pion.png')
-        self.ns = pygame.transform.scale(self.ns, (self.border, self.border))
+        #czworka
+        self.nesw = pygame.image.load('./graphics/czworka.png')
+        self.nesw = pygame.transform.scale(self.nesw, (self.border, self.border))
 
-        self.we = pygame.image.load('poziom.png')
-        self.we = pygame.transform.scale(self.we, (self.border, self.border))
-
-        self.ne = pygame.image.load('naroznik1.png')
-        self.ne = pygame.transform.scale(self.ne, (self.border, self.border))
-
-        self.se = pygame.image.load('naroznik2.png')
-        self.se = pygame.transform.scale(self.se, (self.border, self.border))
-
-        self.sw = pygame.image.load('naroznik3.png')
-        self.sw = pygame.transform.scale(self.sw, (self.border, self.border))
-
-        self.nw = pygame.image.load('naroznik4.png')
-        self.nw = pygame.transform.scale(self.nw, (self.border, self.border))
-
-        self.nwe = pygame.image.load('trojka1.png')
+        #trojki
+        self.nwe = pygame.image.load('./graphics/trojka1.png')
         self.nwe = pygame.transform.scale(self.nwe, (self.border, self.border))
 
-        self.ens = pygame.image.load('trojka2.png')
+        self.ens = pygame.image.load('./graphics/trojka2.png')
         self.ens = pygame.transform.scale(self.ens, (self.border, self.border))
 
-        self.swe = pygame.image.load('trojka3.png')
+        self.swe = pygame.image.load('./graphics/trojka3.png')
         self.swe = pygame.transform.scale(self.swe, (self.border, self.border))
 
-        self.wns = pygame.image.load('trojka4.png')
+        self.wns = pygame.image.load('./graphics/trojka4.png')
         self.wns = pygame.transform.scale(self.wns, (self.border, self.border))
 
+        #proste - piony i poziomy
+        self.ns = pygame.image.load('./graphics/pion.png')
+        self.ns = pygame.transform.scale(self.ns, (self.border, self.border))
 
+        self.we = pygame.image.load('./graphics/poziom.png')
+        self.we = pygame.transform.scale(self.we, (self.border, self.border))
 
+        #zakrety - narozniki
+        self.ne = pygame.image.load('./graphics/naroznik1.png')
+        self.ne = pygame.transform.scale(self.ne, (self.border, self.border))
+
+        self.se = pygame.image.load('./graphics/naroznik2.png')
+        self.se = pygame.transform.scale(self.se, (self.border, self.border))
+
+        self.sw = pygame.image.load('./graphics/naroznik3.png')
+        self.sw = pygame.transform.scale(self.sw, (self.border, self.border))
+
+        self.nw = pygame.image.load('./graphics/naroznik4.png')
+        self.nw = pygame.transform.scale(self.nw, (self.border, self.border))
+
+        #koncowki
+        self.endN = pygame.image.load('./graphics/koncowka1.png')
+        self.endN = pygame.transform.scale(self.endN, (self.border, self.border))
+
+        self.endE = pygame.image.load('./graphics/koncowka2.png')
+        self.endE = pygame.transform.scale(self.endE, (self.border, self.border))
+
+        self.endS = pygame.image.load('./graphics/koncowka3.png')
+        self.endS = pygame.transform.scale(self.endS, (self.border, self.border))
+
+        self.endW = pygame.image.load('./graphics/koncowka4.png')
+        self.endW = pygame.transform.scale(self.endW, (self.border, self.border))
 
     def drawWall(self, x, y):
         #lista zawierajaca kierunki rozbudowy muru
@@ -226,14 +242,17 @@ class Game:
         if x > 0 and self.boardTab[x-1][y] == 1:
             directionsTab[3] = True
 
+        #czworka
+        if False not in directionsTab:
+            self.screen.blit(self.nesw, (self.dx+x*self.border,self.dy+y*self.border))
         #trojki
-        if directionsTab[3] and directionsTab[0] and directionsTab[1]:
+        elif directionsTab[3] and directionsTab[0] and directionsTab[1]:
             self.screen.blit(self.nwe, (self.dx+x*self.border,self.dy+y*self.border))
         elif directionsTab[0] and directionsTab[1] and directionsTab[2]:
             self.screen.blit(self.ens, (self.dx+x*self.border,self.dy+y*self.border))
         elif directionsTab[1] and directionsTab[2] and directionsTab[3]:
             self.screen.blit(self.swe, (self.dx+x*self.border,self.dy+y*self.border))
-        elif directionsTab[2] and directionsTab[3] and directionsTab[1]:
+        elif directionsTab[2] and directionsTab[3] and directionsTab[0]:
             self.screen.blit(self.wns, (self.dx+x*self.border,self.dy+y*self.border))
         #pion
         elif directionsTab[0] and directionsTab[2]:
@@ -250,8 +269,16 @@ class Game:
             self.screen.blit(self.sw, (self.dx+x*self.border,self.dy+y*self.border))
         elif directionsTab[3] and directionsTab[0]:
             self.screen.blit(self.nw, (self.dx+x*self.border,self.dy+y*self.border))
+        #koncowki
+        elif directionsTab[2]:
+            self.screen.blit(self.endN, (self.dx+x*self.border,self.dy+y*self.border))
+        elif directionsTab[3]:
+            self.screen.blit(self.endE, (self.dx+x*self.border,self.dy+y*self.border))
+        elif directionsTab[0]:
+            self.screen.blit(self.endS, (self.dx+x*self.border,self.dy+y*self.border))
+        elif directionsTab[1]:
+            self.screen.blit(self.endW, (self.dx+x*self.border,self.dy+y*self.border))
         
-
     def draw(self):
         #wypelnianie ekranu kolorem
         self.screen.fill(BLACK)
@@ -389,3 +416,4 @@ class Game:
 
 game = Game("./first.npy")
 game.run()
+

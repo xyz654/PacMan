@@ -3,7 +3,7 @@ from enums import Direction
 
 
 class PacMan:
-    def __init__(self, x, y, t):
+    def __init__(self, x, y, t, tunelTime):
         self.x = x
         self.y = y
         self.xNormalized = x
@@ -12,7 +12,7 @@ class PacMan:
         self.direction = None
         self.nextDirection = None
         self.isInTunel = False
-        self.tunelDuration = 0.5
+        self.tunelDuration = tunelTime
         self.startTunel = 0
 
     def move(self):
