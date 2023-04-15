@@ -57,6 +57,7 @@ class Game:
 
         #laduje obrazki
         self.loadImages()
+        self.player.loadImages(self.border)
 
         #tworze graf w postaci listy sasiedztwa
         self.tunels = []
@@ -302,8 +303,8 @@ class Game:
                     pygame.draw.circle(self.screen, YELLOW_LIGHT, (self.dx+x*self.border+self.border/2, self.dy+y*self.border+self.border/2), self.border/4)
         
         #rysowanie Pac-Mana
-        pygame.draw.circle(self.screen, YELLOW, (self.dx+self.player.xNormalized*self.border+self.border/2, self.dy+self.player.yNormalized*self.border+self.border/2), self.border/3)
-
+        # pygame.draw.circle(self.screen, YELLOW, (self.dx+self.player.xNormalized*self.border+self.border/2, self.dy+self.player.yNormalized*self.border+self.border/2), self.border/3)
+        self.screen.blit(self.player.getImage(), (self.dx+self.player.xNormalized*self.border, self.dy+self.player.yNormalized*self.border))
 
 
         #przeslony na tunele
@@ -382,6 +383,7 @@ class Game:
                 elif event.type == pygame.WINDOWEXPOSED:
                     self.calculateScreen()
                     self.loadImages()
+                    self.player.loadImages(self.border)
 
                 #keydowny
                 if event.type == pygame.MOUSEBUTTONDOWN:
