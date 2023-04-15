@@ -12,8 +12,8 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW_LIGHT = (255, 255, 102)
 YELLOW = (255, 255, 0)
-GREY = (211,211,211)
-ORANGE =(255,69,0)
+GREY = (211, 211, 211)
+ORANGE = (255, 69, 0)
 
 
 
@@ -303,7 +303,6 @@ class Game:
 
             #kontroluje FPS
             self.clock.tick(self.FPS)
-
 
 
 
