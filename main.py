@@ -30,13 +30,16 @@ class Game:
         self.nY = 25 
 
         #dane dot okna i jego rozmiaru
-        self.screen_width = 700
-        self.screen_height = 600
-        self.border = 20
+        self.screen_width = 500
+        self.screen_height = 700
+        self.minWidth = 500
+        self.minHeight = 700
+
+        self.unit = 20
 
         #ogolne wymiary siatki w pixelach
-        self.width = self.border*self.nX
-        self.height = self.border*self.nY
+        self.width = self.unit*self.nX
+        self.height = self.unit*self.nY
 
         #przesuniecia by siatka byla na srodku
         self.dx = (self.screen_width-self.width)/2
@@ -44,15 +47,12 @@ class Game:
 
         #zmienne do przechowywania danych gry
         self.activeGame = True
+        self.cherryExist = False
+        self.cherryStartTime = time.time()
         self.ghostRespawnArea = []
-        self.difficulty = 1
-        self.cherryTime = 1
-        self.hp = 1
-        self.boostTime = 1
 
         #gracz
         self.playerMoveTime = 20
-        self.dinnerDuration = 5
         self.startDinnerTime = None
         self.dinnerBonus = 200
 
@@ -65,10 +65,6 @@ class Game:
 
         #laduje obrazki
         self.loadImages()
-        self.player.loadImages(self.border) 
-        for ghost in self.ghosts:
-            ghost.loadImages(self.border)
-
         
 
         #tworze graf w postaci listy sasiedztwa
@@ -149,6 +145,7 @@ class Game:
 
     def loadData(self, path):
         self.dotScore = 0
+        hp = 0
         if len(path)!=0:
             #pobieram dane z pliku
             with open(path, 'rb') as f:
@@ -156,8 +153,9 @@ class Game:
                 stats = np.load(f)
                 self.difficulty = stats[0]
                 self.cherryTime = stats[1]
-                self.hp = stats[2]
-                self.boostTime = stats[4]
+                hp = stats[2]
+                self.hpTab = [PacMan(1,1,1,1,1) for i in range(hp)]
+                self.dinnerDuration = stats[4]
                 #zbieranie planszy
                 for i in range(self.nX):
                     for j in range(self.nY):
@@ -176,7 +174,7 @@ class Game:
                         self.boardTab[i][j] = 0
                     #Pac-Man
                     elif self.boardTab[i][j] == 4:
-                        self.player = PacMan(i,j, self.playerMoveTime, 0.5, 3)
+                        self.player = PacMan(i,j, self.playerMoveTime, 0.5, hp)
                         self.boardTab[i][j] = 2
                         self.dotScore += 10
     
@@ -184,66 +182,89 @@ class Game:
         #pobieram rozmiary okna
         self.screen_width, self.screen_height = self.screen.get_size()
 
-        self.border = 20
+        #wyznaczam nowa dlugosc jednostki        
+        self.unit = min(self.screen_height/(8+self.nY), self.screen_width/(4+self.nX))
+
 
         #ogolne wymiary siatki w pixelach
-        self.width = self.border*self.nX
-        self.height = self.border*self.nY
+        self.width = self.unit*self.nX
+        self.height = self.unit*self.nY
 
         #przesuniecia by siatka byla na srodku
         self.dx = (self.screen_width-self.width)/2
         self.dy = (self.screen_height-self.height)/2
 
     def loadImages(self):
+        #obrazki pacmana i duszkow
+        self.player.loadImages(self.unit) 
+        for ghost in self.ghosts:
+            ghost.loadImages(self.unit)
+
+        #obrazki hp
+        for pac in self.hpTab:
+            pac.loadImages(self.unit*2)
+            pac.direction = Direction.EAST
+
+        #wisienka 
+        self.cherryImg = pygame.image.load('./graphics/pngFiles/bonusItems/cherries.png')
+        self.cherryImg = pygame.transform.scale(self.cherryImg, (self.unit, self.unit))
+
+        #kropki
+        self.dotImg = pygame.image.load('./graphics/pngFiles/bonusItems/dot.png')
+        self.dotImg = pygame.transform.scale(self.dotImg, (self.unit, self.unit))
+
+        self.bigDotImg = pygame.image.load('./graphics/pngFiles/bonusItems/bigDot.png')
+        self.bigDotImg = pygame.transform.scale(self.bigDotImg, (self.unit, self.unit))
+
         #czworka
         self.nesw = pygame.image.load('./graphics/pngFiles/walls/czworka.png')
-        self.nesw = pygame.transform.scale(self.nesw, (self.border, self.border))
+        self.nesw = pygame.transform.scale(self.nesw, (self.unit, self.unit))
 
         #trojki
         self.nwe = pygame.image.load('./graphics/pngFiles/walls/trojka1.png')
-        self.nwe = pygame.transform.scale(self.nwe, (self.border, self.border))
+        self.nwe = pygame.transform.scale(self.nwe, (self.unit, self.unit))
 
         self.ens = pygame.image.load('./graphics/pngFiles/walls/trojka2.png')
-        self.ens = pygame.transform.scale(self.ens, (self.border, self.border))
+        self.ens = pygame.transform.scale(self.ens, (self.unit, self.unit))
 
         self.swe = pygame.image.load('./graphics/pngFiles/walls/trojka3.png')
-        self.swe = pygame.transform.scale(self.swe, (self.border, self.border))
+        self.swe = pygame.transform.scale(self.swe, (self.unit, self.unit))
 
         self.wns = pygame.image.load('./graphics/pngFiles/walls/trojka4.png')
-        self.wns = pygame.transform.scale(self.wns, (self.border, self.border))
+        self.wns = pygame.transform.scale(self.wns, (self.unit, self.unit))
 
         #proste - piony i poziomy
         self.ns = pygame.image.load('./graphics/pngFiles/walls/pion.png')
-        self.ns = pygame.transform.scale(self.ns, (self.border, self.border))
+        self.ns = pygame.transform.scale(self.ns, (self.unit, self.unit))
 
         self.we = pygame.image.load('./graphics/pngFiles/walls/poziom.png')
-        self.we = pygame.transform.scale(self.we, (self.border, self.border))
+        self.we = pygame.transform.scale(self.we, (self.unit, self.unit))
 
         #zakrety - narozniki
         self.ne = pygame.image.load('./graphics/pngFiles/walls/naroznik1.png')
-        self.ne = pygame.transform.scale(self.ne, (self.border, self.border))
+        self.ne = pygame.transform.scale(self.ne, (self.unit, self.unit))
 
         self.se = pygame.image.load('./graphics/pngFiles/walls/naroznik2.png')
-        self.se = pygame.transform.scale(self.se, (self.border, self.border))
+        self.se = pygame.transform.scale(self.se, (self.unit, self.unit))
 
         self.sw = pygame.image.load('./graphics/pngFiles/walls/naroznik3.png')
-        self.sw = pygame.transform.scale(self.sw, (self.border, self.border))
+        self.sw = pygame.transform.scale(self.sw, (self.unit, self.unit))
 
         self.nw = pygame.image.load('./graphics/pngFiles/walls/naroznik4.png')
-        self.nw = pygame.transform.scale(self.nw, (self.border, self.border))
+        self.nw = pygame.transform.scale(self.nw, (self.unit, self.unit))
 
         #koncowki
         self.endN = pygame.image.load('./graphics/pngFiles/walls/koncowka1.png')
-        self.endN = pygame.transform.scale(self.endN, (self.border, self.border))
+        self.endN = pygame.transform.scale(self.endN, (self.unit, self.unit))
 
         self.endE = pygame.image.load('./graphics/pngFiles/walls/koncowka2.png')
-        self.endE = pygame.transform.scale(self.endE, (self.border, self.border))
+        self.endE = pygame.transform.scale(self.endE, (self.unit, self.unit))
 
         self.endS = pygame.image.load('./graphics/pngFiles/walls/koncowka3.png')
-        self.endS = pygame.transform.scale(self.endS, (self.border, self.border))
+        self.endS = pygame.transform.scale(self.endS, (self.unit, self.unit))
 
         self.endW = pygame.image.load('./graphics/pngFiles/walls/koncowka4.png')
-        self.endW = pygame.transform.scale(self.endW, (self.border, self.border))
+        self.endW = pygame.transform.scale(self.endW, (self.unit, self.unit))
 
     def drawWall(self, x, y):
         #lista zawierajaca kierunki rozbudowy muru
@@ -263,40 +284,40 @@ class Game:
 
         #czworka
         if False not in directionsTab:
-            self.screen.blit(self.nesw, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.nesw, (self.dx+x*self.unit,self.dy+y*self.unit))
         #trojki
         elif directionsTab[3] and directionsTab[0] and directionsTab[1]:
-            self.screen.blit(self.nwe, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.nwe, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[0] and directionsTab[1] and directionsTab[2]:
-            self.screen.blit(self.ens, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.ens, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[1] and directionsTab[2] and directionsTab[3]:
-            self.screen.blit(self.swe, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.swe, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[2] and directionsTab[3] and directionsTab[0]:
-            self.screen.blit(self.wns, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.wns, (self.dx+x*self.unit,self.dy+y*self.unit))
         #pion
         elif directionsTab[0] and directionsTab[2]:
-            self.screen.blit(self.ns, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.ns, (self.dx+x*self.unit,self.dy+y*self.unit))
         #poziom
         elif directionsTab[1] and directionsTab[3]:
-            self.screen.blit(self.we, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.we, (self.dx+x*self.unit,self.dy+y*self.unit))
         #narozniki
         elif directionsTab[0] and directionsTab[1]:
-            self.screen.blit(self.ne, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.ne, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[1] and directionsTab[2]:
-            self.screen.blit(self.se, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.se, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[2] and directionsTab[3]:
-            self.screen.blit(self.sw, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.sw, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[3] and directionsTab[0]:
-            self.screen.blit(self.nw, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.nw, (self.dx+x*self.unit,self.dy+y*self.unit))
         #koncowki
         elif directionsTab[2]:
-            self.screen.blit(self.endN, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.endN, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[3]:
-            self.screen.blit(self.endE, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.endE, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[0]:
-            self.screen.blit(self.endS, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.endS, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[1]:
-            self.screen.blit(self.endW, (self.dx+x*self.border,self.dy+y*self.border))
+            self.screen.blit(self.endW, (self.dx+x*self.unit,self.dy+y*self.unit))
         
     def draw(self):
         #wypelnianie ekranu kolorem
@@ -307,39 +328,50 @@ class Game:
             for y in range(self.nY):
                 #floor without dot or tunnel or ghost respawn area
                 if self.boardTab[x][y] == 0:
-                    pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
+                    pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.unit,self.dy+y*self.unit,self.unit,self.unit))
                 #wall
                 if self.boardTab[x][y] == 1:
                     self.drawWall(x, y)
                 #floor with dot
                 if self.boardTab[x][y] == 2:
-                    pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
-                    pygame.draw.circle(self.screen, YELLOW_LIGHT, (self.dx+x*self.border+self.border/2, self.dy+y*self.border+self.border/2), self.border/6)
+                    self.screen.blit(self.dotImg, (self.dx+x*self.unit,self.dy+y*self.unit))
                 #big dot
                 if self.boardTab[x][y] == 3:
-                    pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
-                    pygame.draw.circle(self.screen, YELLOW_LIGHT, (self.dx+x*self.border+self.border/2, self.dy+y*self.border+self.border/2), self.border/4)
+                    self.screen.blit(self.bigDotImg, (self.dx+x*self.unit,self.dy+y*self.unit))
+                #cherry
+                if self.boardTab[x][y] == 6:
+                    self.screen.blit(self.cherryImg, (self.dx+x*self.unit,self.dy+y*self.unit))
+                
         
         #rysowanie duszkow
         for ghost in self.ghosts:
             if not ghost.eaten:
-                self.screen.blit(ghost.getImage(), (self.dx+ghost.xNormalized*self.border, self.dy+ghost.yNormalized*self.border))
+                self.screen.blit(ghost.getImage(), (self.dx+ghost.xNormalized*self.unit, self.dy+ghost.yNormalized*self.unit))
 
         #rysowanie Pac-Mana
-        self.screen.blit(self.player.getImage(), (self.dx+self.player.xNormalized*self.border, self.dy+self.player.yNormalized*self.border))
+        self.screen.blit(self.player.getImage(), (self.dx+self.player.xNormalized*self.unit, self.dy+self.player.yNormalized*self.unit))
 
 
         #przeslony na tunele
         x, y = self.tunels[0]
-        pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
+        pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.unit,self.dy+y*self.unit,self.unit,self.unit))
         x, y = self.tunels[1]
-        pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
+        pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.unit,self.dy+y*self.unit,self.unit,self.unit))
         #przeslony pionowe (boki)
         pygame.draw.rect(self.screen, BLACK, (0, 0, self.dx, self.screen_height))
-        pygame.draw.rect(self.screen, BLACK, (self.dx+self.nX*self.border, 0, self.dx, self.screen_height))
+        pygame.draw.rect(self.screen, BLACK, (self.dx+self.nX*self.unit, 0, self.dx, self.screen_height))
         #przeslony poziome (gora-dol)
         pygame.draw.rect(self.screen, BLACK, (0, 0, self.screen_width, self.dy))
-        pygame.draw.rect(self.screen, BLACK, (0, self.dy+self.nY*self.border, self.screen_width, self.dy))
+        pygame.draw.rect(self.screen, BLACK, (0, self.dy+self.nY*self.unit, self.screen_width, self.dy))
+
+        #INTERFEJS
+        #hp
+        hpSize = 2*self.unit
+        dx = self.player.hp * hpSize / 2
+        for i in range(self.player.hp):
+            x = self.screen_width/2 - dx + i*hpSize
+            y = self.screen_height - 2*hpSize
+            self.screen.blit(self.hpTab[i].getImage(), (x,y))
 
     def checkWinOrDefeat(self):
         #przegrana
@@ -373,6 +405,12 @@ class Game:
                 #jak zjem duza kropke to moge zjadac duszki
                 self.startDinnerTime = time.time()
                 self.dinnerBonus = 200
+            #wisienki
+            if self.boardTab[xp][yp] == 6:
+                self.player.otherScore += 100
+                self.boardTab[xp][yp] = 0
+                self.cherryExist = False
+                self.cherryStartTime = time.time()
 
             #sprawdzam czy moge jesc duszki
             canBeEaten = False
@@ -396,6 +434,9 @@ class Game:
 
             #sprawdzam koniec gry
             self.checkWinOrDefeat()
+
+            #tworze ew wisienki
+            self.cherryService()
 
             
             #pobieram sasiadow aktualnego pola na ktorym jest pac-man
@@ -432,6 +473,19 @@ class Game:
         #RUCH
         #Pac-Man
         self.player.move()
+
+    def cherryService(self):
+        #tworze wisienke tylko jesli jeszcze jej nie ma i gracz zjadl juz co najmniej 1/4 wszytskich kropek
+        if not self.cherryExist and self.player.dotScore > self.dotScore/4:
+            if time.time() - self.cherryStartTime >= self.cherryTime:
+                while True:
+                    x = random.randint(1,self.nX-2)
+                    y = random.randint(1,self.nY-2)
+                    if self.boardTab[x][y] == 0 and (x,y) not in self.ghostRespawnArea:
+                        self.boardTab[x][y] = 6
+                        self.cherryExist = True
+                        break
+
 
     #metoda robocza
     def placeGhosts(self):
@@ -484,7 +538,6 @@ class Game:
                 elif event.type == pygame.WINDOWEXPOSED:
                     self.calculateScreen()
                     self.loadImages()
-                    self.player.loadImages(self.border)
 
                 #keydowny
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -519,4 +572,3 @@ class Game:
 
 game = Game("./maps/first.npy")
 game.run()
-

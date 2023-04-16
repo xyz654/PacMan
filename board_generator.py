@@ -429,8 +429,8 @@ class BoardGenerator:
         self.cherry = tk.DoubleVar()
         ttk.Scale(
                             root,
-                            from_=30,
-                            to=60,
+                            from_=5,
+                            to=20,
                             orient='horizontal', 
                             variable=self.cherry,
                             command=updateSlider
@@ -438,11 +438,9 @@ class BoardGenerator:
 
         cherryLabel = ttk.Label(root, text="Current time: "+str(self.cherry_to_save)+"s")
         cherryLabel.pack()
+        
 
-        correctButton = ttk.Button(root, text="Check correct", command=ifCorrect)
-        correctButton.pack()
-
-        #czestotliwosc boost
+        #czas boost
 
         ttk.Label(root, text="Set the boost time:").pack()
         self.boostTime = tk.DoubleVar()
