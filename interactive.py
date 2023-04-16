@@ -177,3 +177,19 @@ class Blinky(GameElement):
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky2.png')
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky3.png')
         super().loadImages(border, paths)
+
+class Inky(GameElement):
+    def loadImages(self, border):
+        paths = []
+        paths.append('./graphics/pngFiles/ghosts/inky/inky1.png')
+        paths.append('./graphics/pngFiles/ghosts/inky/inky2.png')
+        paths.append('./graphics/pngFiles/ghosts/inky/inky3.png')
+        super().loadImages(border, paths)
+
+class Pinky(GameElement):
+    def loadImages(self, border):
+        paths = []
+        paths.append('./graphics/pngFiles/ghosts/pinky/pinky1.png')
+        paths.append('./graphics/pngFiles/ghosts/pinky/pinky2.png')
+        paths.append('./graphics/pngFiles/ghosts/pinky/pinky3.png')
+        super().loadImages(border, paths)

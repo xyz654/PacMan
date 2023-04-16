@@ -4,7 +4,7 @@ import random
 import numpy as np
 from enums import Direction
 from interactive import PacMan
-from interactive import Clyde, Blinky
+from interactive import Clyde, Blinky, Inky, Pinky
 
 # Define colors
 BLACK = (0, 0, 0)
@@ -401,8 +401,20 @@ class Game:
             if self.boardTab[x][y] == 2:
                 self.ghosts.append(Blinky(x,y,self.playerMoveTime,0.8))
                 break
+        
+        while True:
+            x = random.randint(1,self.nX-2)
+            y = random.randint(1,self.nY-2)
+            if self.boardTab[x][y] == 2:
+                self.ghosts.append(Inky(x,y,self.playerMoveTime,0.8))
+                break
 
-
+        while True:
+            x = random.randint(1,self.nX-2)
+            y = random.randint(1,self.nY-2)
+            if self.boardTab[x][y] == 2:
+                self.ghosts.append(Pinky(x,y,self.playerMoveTime,0.8))
+                break
 
 
     def run(self):
