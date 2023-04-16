@@ -30,12 +30,16 @@ class Game:
         self.nY = 25 
 
         #dane dot okna i jego rozmiaru
-        self.screen_width = 500
+        self.screen_width = 800
         self.screen_height = 700
         self.minWidth = 500
         self.minHeight = 700
 
-        self.unit = 20
+        #okno
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.RESIZABLE)
+        pygame.display.set_caption("Pac-Man")
+
+        self.calculateScreen()
 
         #ogolne wymiary siatki w pixelach
         self.width = self.unit*self.nX
@@ -66,15 +70,10 @@ class Game:
         #laduje obrazki
         self.loadImages()
         
-
         #tworze graf w postaci listy sasiedztwa
         self.tunels = []
         self.graph = None
         self.makeGraph()
-
-        #okno
-        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.RESIZABLE)
-        pygame.display.set_caption("Pac-Man")
 
         # zegar
         self.counter = 1
@@ -185,6 +184,8 @@ class Game:
         #wyznaczam nowa dlugosc jednostki        
         self.unit = min(self.screen_height/(8+self.nY), self.screen_width/(4+self.nX))
 
+        #ustalam czcionke
+        self.font = pygame.font.Font('freesansbold.ttf', int(1.5*self.unit))
 
         #ogolne wymiary siatki w pixelach
         self.width = self.unit*self.nX
@@ -372,6 +373,13 @@ class Game:
             x = self.screen_width/2 - dx + i*hpSize
             y = self.screen_height - 2*hpSize
             self.screen.blit(self.hpTab[i].getImage(), (x,y))
+        
+        #score
+        score = self.player.dotScore + self.player.otherScore
+        scoreText = self.font.render("Score: "+str(score), True, YELLOW_LIGHT)
+        textRect = scoreText.get_rect()
+        textRect.center = (self.screen_width/2, self.unit*2)
+        self.screen.blit(scoreText, textRect)
 
     def checkWinOrDefeat(self):
         #przegrana
@@ -570,5 +578,5 @@ class Game:
 
 
 
-game = Game("./maps/first.npy")
-game.run()
+# game = Game("./maps/first.npy")
+# game.run()
