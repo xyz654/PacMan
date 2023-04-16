@@ -31,7 +31,6 @@ class Game:
         #dane dot okna i jego rozmiaru
         self.screen_width = 700
         self.screen_height = 600
-
         self.border = 20
 
         #ogolne wymiary siatki w pixelach
@@ -43,6 +42,7 @@ class Game:
         self.dy = (self.screen_height-self.height)/2
 
         #zmienne do przechowywania danych gry
+        self.activeGame = True
         self.ghostRespawnArea = []
         self.difficulty = 1
         self.cherryTime = 1
@@ -51,7 +51,6 @@ class Game:
 
         #gracz
         self.playerMoveTime = 20
-        self.player = None
 
         #pobieram dane i je przypisuje do odpowiednich zmiennych
         self.boardTab = np.zeros((self.nX, self.nY))
@@ -145,6 +144,7 @@ class Game:
                             self.graph[i][j].append((i,j-1))
 
     def loadData(self, path):
+        self.dotScore = 0
         if len(path)!=0:
             #pobieram dane z pliku
             with open(path, 'rb') as f:
@@ -158,6 +158,10 @@ class Game:
                 for i in range(self.nX):
                     for j in range(self.nY):
                         self.boardTab[i][j] = np.load(f)[0]
+                        if self.boardTab[i][j] == 2:
+                            self.dotScore += 10
+                        if self.boardTab[i][j] == 3:
+                            self.dotScore += 40
             #przeksztalcam dane do uzytecznej formy
             for i in range(self.nX):
                 for j in range(self.nY):
@@ -168,8 +172,9 @@ class Game:
                         self.boardTab[i][j] = 0
                     #Pac-Man
                     elif self.boardTab[i][j] == 4:
-                        self.player = PacMan(i,j, self.playerMoveTime, 0.5)
+                        self.player = PacMan(i,j, self.playerMoveTime, 0.5, 3)
                         self.boardTab[i][j] = 2
+                        self.dotScore += 10
     
     def calculateScreen(self):
         #pobieram rozmiary okna
@@ -331,6 +336,14 @@ class Game:
         pygame.draw.rect(self.screen, BLACK, (0, 0, self.screen_width, self.dy))
         pygame.draw.rect(self.screen, BLACK, (0, self.dy+self.nY*self.border, self.screen_width, self.dy))
 
+    def checkWinOrDefeat(self):
+        #przegrana
+        if self.player.hp <= 0:
+            self.activeGame = False
+        #wygrana
+        if self.player.dotScore == self.dotScore:
+            self.activeGame = False
+
     def moveAll(self):
         #ZMIANY KIERUNKU RUCHU
         #Pac-Man
@@ -345,12 +358,25 @@ class Game:
             #zjadam to co mam na drodze
             #male kropki
             if self.boardTab[xp][yp] == 2:
+                self.player.dotScore += 10
                 self.boardTab[xp][yp] = 0
             #duze kropki
             if self.boardTab[xp][yp] == 3:
+                self.player.dotScore += 40
                 self.boardTab[xp][yp] = 0
+            
+            #sprawdzam czy wszedlem na duszka
+            for ghost in self.ghosts:
+                if ghost.x == self.player.x and ghost.y == self.player.y:
+                    # self.player.hp -= 1
+                    break
 
 
+            #sprawdzam koniec gry
+            self.checkWinOrDefeat()
+
+            
+            #pobieram sasiadow aktualnego pola na ktorym jest pac-man
             neighbours = self.graph[xp][yp]
 
             #zmiana kierunku
@@ -418,7 +444,7 @@ class Game:
 
 
     def run(self):
-        while True:
+        while self.activeGame:
             #ruszanie
             self.moveAll()
 

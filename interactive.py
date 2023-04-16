@@ -128,6 +128,12 @@ class GameElement:
 
 
 class PacMan(GameElement):
+    def __init__(self, x, y, t, tunelTime, hp):
+        super().__init__(x,y,t,tunelTime)
+        self.hp = hp
+        self.dotScore = 0
+        self.otherScore = 0
+
     def loadImages(self, border):
         paths = []
         paths.append('./graphics/pngFiles/pacman/pacman1.png')
@@ -193,3 +199,6 @@ class Pinky(GameElement):
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky2.png')
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky3.png')
         super().loadImages(border, paths)
+
+
+        
