@@ -161,4 +161,19 @@ class PacMan(GameElement):
 
         return toReturn
 
-    
+
+class Clyde(GameElement):
+    def loadImages(self, border):
+        paths = []
+        paths.append('./graphics/pngFiles/ghosts/clyde/clyde1.png')
+        paths.append('./graphics/pngFiles/ghosts/clyde/clyde2.png')
+        paths.append('./graphics/pngFiles/ghosts/clyde/clyde3.png')
+        super().loadImages(border, paths)
+
+class Blinky(GameElement):
+    def loadImages(self, border):
+        paths = []
+        paths.append('./graphics/pngFiles/ghosts/blinky/blinky1.png')
+        paths.append('./graphics/pngFiles/ghosts/blinky/blinky2.png')
+        paths.append('./graphics/pngFiles/ghosts/blinky/blinky3.png')
+        super().loadImages(border, paths)

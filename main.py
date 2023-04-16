@@ -1,8 +1,10 @@
 import pygame
 import sys
+import random
 import numpy as np
 from enums import Direction
 from interactive import PacMan
+from interactive import Clyde, Blinky
 
 # Define colors
 BLACK = (0, 0, 0)
@@ -55,9 +57,16 @@ class Game:
         self.boardTab = np.zeros((self.nX, self.nY))
         self.loadData(path)
 
+        #umiejscowanie duszkow
+        self.placeGhosts()
+
         #laduje obrazki
         self.loadImages()
-        self.player.loadImages(self.border)
+        self.player.loadImages(self.border) 
+        for ghost in self.ghosts:
+            ghost.loadImages(self.border)
+
+        
 
         #tworze graf w postaci listy sasiedztwa
         self.tunels = []
@@ -302,8 +311,11 @@ class Game:
                     pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.border,self.dy+y*self.border,self.border,self.border))
                     pygame.draw.circle(self.screen, YELLOW_LIGHT, (self.dx+x*self.border+self.border/2, self.dy+y*self.border+self.border/2), self.border/4)
         
+        #rysowanie duszkow
+        for ghost in self.ghosts:
+            self.screen.blit(ghost.getImage(), (self.dx+ghost.xNormalized*self.border, self.dy+ghost.yNormalized*self.border))
+
         #rysowanie Pac-Mana
-        # pygame.draw.circle(self.screen, YELLOW, (self.dx+self.player.xNormalized*self.border+self.border/2, self.dy+self.player.yNormalized*self.border+self.border/2), self.border/3)
         self.screen.blit(self.player.getImage(), (self.dx+self.player.xNormalized*self.border, self.dy+self.player.yNormalized*self.border))
 
 
@@ -372,6 +384,25 @@ class Game:
         #RUCH
         #Pac-Man
         self.player.move()
+
+    #metoda robocza
+    def placeGhosts(self):
+        self.ghosts=[]
+        while True:
+            x = random.randint(1,self.nX-2)
+            y = random.randint(1,self.nY-2)
+            if self.boardTab[x][y] == 2:
+                self.ghosts.append(Clyde(x,y,self.playerMoveTime,0.8))
+                break
+        
+        while True:
+            x = random.randint(1,self.nX-2)
+            y = random.randint(1,self.nY-2)
+            if self.boardTab[x][y] == 2:
+                self.ghosts.append(Blinky(x,y,self.playerMoveTime,0.8))
+                break
+
+
 
 
     def run(self):
