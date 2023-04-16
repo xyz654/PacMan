@@ -2,7 +2,7 @@ import pygame
 import sys
 import numpy as np
 from enums import Direction
-from player import PacMan
+from interactive import PacMan
 
 # Define colors
 BLACK = (0, 0, 0)
@@ -178,53 +178,53 @@ class Game:
 
     def loadImages(self):
         #czworka
-        self.nesw = pygame.image.load('./graphics/czworka.png')
+        self.nesw = pygame.image.load('./graphics/pngFiles/walls/czworka.png')
         self.nesw = pygame.transform.scale(self.nesw, (self.border, self.border))
 
         #trojki
-        self.nwe = pygame.image.load('./graphics/trojka1.png')
+        self.nwe = pygame.image.load('./graphics/pngFiles/walls/trojka1.png')
         self.nwe = pygame.transform.scale(self.nwe, (self.border, self.border))
 
-        self.ens = pygame.image.load('./graphics/trojka2.png')
+        self.ens = pygame.image.load('./graphics/pngFiles/walls/trojka2.png')
         self.ens = pygame.transform.scale(self.ens, (self.border, self.border))
 
-        self.swe = pygame.image.load('./graphics/trojka3.png')
+        self.swe = pygame.image.load('./graphics/pngFiles/walls/trojka3.png')
         self.swe = pygame.transform.scale(self.swe, (self.border, self.border))
 
-        self.wns = pygame.image.load('./graphics/trojka4.png')
+        self.wns = pygame.image.load('./graphics/pngFiles/walls/trojka4.png')
         self.wns = pygame.transform.scale(self.wns, (self.border, self.border))
 
         #proste - piony i poziomy
-        self.ns = pygame.image.load('./graphics/pion.png')
+        self.ns = pygame.image.load('./graphics/pngFiles/walls/pion.png')
         self.ns = pygame.transform.scale(self.ns, (self.border, self.border))
 
-        self.we = pygame.image.load('./graphics/poziom.png')
+        self.we = pygame.image.load('./graphics/pngFiles/walls/poziom.png')
         self.we = pygame.transform.scale(self.we, (self.border, self.border))
 
         #zakrety - narozniki
-        self.ne = pygame.image.load('./graphics/naroznik1.png')
+        self.ne = pygame.image.load('./graphics/pngFiles/walls/naroznik1.png')
         self.ne = pygame.transform.scale(self.ne, (self.border, self.border))
 
-        self.se = pygame.image.load('./graphics/naroznik2.png')
+        self.se = pygame.image.load('./graphics/pngFiles/walls/naroznik2.png')
         self.se = pygame.transform.scale(self.se, (self.border, self.border))
 
-        self.sw = pygame.image.load('./graphics/naroznik3.png')
+        self.sw = pygame.image.load('./graphics/pngFiles/walls/naroznik3.png')
         self.sw = pygame.transform.scale(self.sw, (self.border, self.border))
 
-        self.nw = pygame.image.load('./graphics/naroznik4.png')
+        self.nw = pygame.image.load('./graphics/pngFiles/walls/naroznik4.png')
         self.nw = pygame.transform.scale(self.nw, (self.border, self.border))
 
         #koncowki
-        self.endN = pygame.image.load('./graphics/koncowka1.png')
+        self.endN = pygame.image.load('./graphics/pngFiles/walls/koncowka1.png')
         self.endN = pygame.transform.scale(self.endN, (self.border, self.border))
 
-        self.endE = pygame.image.load('./graphics/koncowka2.png')
+        self.endE = pygame.image.load('./graphics/pngFiles/walls/koncowka2.png')
         self.endE = pygame.transform.scale(self.endE, (self.border, self.border))
 
-        self.endS = pygame.image.load('./graphics/koncowka3.png')
+        self.endS = pygame.image.load('./graphics/pngFiles/walls/koncowka3.png')
         self.endS = pygame.transform.scale(self.endS, (self.border, self.border))
 
-        self.endW = pygame.image.load('./graphics/koncowka4.png')
+        self.endW = pygame.image.load('./graphics/pngFiles/walls/koncowka4.png')
         self.endW = pygame.transform.scale(self.endW, (self.border, self.border))
 
     def drawWall(self, x, y):
@@ -426,6 +426,6 @@ class Game:
 
 
 
-game = Game("./first.npy")
+game = Game("./maps/first.npy")
 game.run()
 

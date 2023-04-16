@@ -3,7 +3,8 @@ import pygame
 from enums import Direction
 
 
-class PacMan:
+
+class GameElement:
     def __init__(self, x, y, t, tunelTime):
         self.x = x
         self.y = y
@@ -96,16 +97,13 @@ class PacMan:
             self.xNormalized = self.x
             self.yNormalized = self.y
 
-    def loadImages(self, border):
+    def loadImages(self, border, imagesPaths):
+        #laduje obrazki
         self.frames = []
-        self.frames.append(pygame.image.load('./graphics/pacman1.png'))
-        self.frames.append(pygame.image.load('./graphics/pacman2.png'))
-        self.frames.append(pygame.image.load('./graphics/pacman3.png'))
-        self.frames.append(pygame.image.load('./graphics/pacman4.png'))
-        self.frames.append(pygame.image.load('./graphics/pacman5.png'))
-        self.frames.append(pygame.image.load('./graphics/pacman6.png'))
-
-        for i in range(6):
+        for imgPath in imagesPaths:
+            self.frames.append(pygame.image.load(imgPath))
+        #skaluje zaladowane obrazki
+        for i in range(len(self.frames)):
             self.frames[i] = pygame.transform.scale(self.frames[i], (border, border))
 
     def getImage(self):
@@ -124,7 +122,25 @@ class PacMan:
                 toReturn = self.frames[len(self.frames) - self.imageIterator-1]
         if toReturn == None:
             toReturn = self.frames[self.imageIterator]
-        
+
+        return toReturn
+
+
+
+class PacMan(GameElement):
+    def loadImages(self, border):
+        paths = []
+        paths.append('./graphics/pngFiles/pacman/pacman1.png')
+        paths.append('./graphics/pngFiles/pacman/pacman2.png')
+        paths.append('./graphics/pngFiles/pacman/pacman3.png')
+        paths.append('./graphics/pngFiles/pacman/pacman4.png')
+        paths.append('./graphics/pngFiles/pacman/pacman5.png')
+        paths.append('./graphics/pngFiles/pacman/pacman6.png')
+        super().loadImages(border, paths)
+    
+    def getImage(self):
+        toReturn = super().getImage()
+
         #obracanie w zaleznosci od kierunku ruchu
         if self.direction == Direction.NORTH:
             toReturn = pygame.transform.rotate(toReturn, 0)
@@ -144,4 +160,5 @@ class PacMan:
             toReturn = pygame.transform.rotate(toReturn, 90)
 
         return toReturn
-        
+
+    
