@@ -169,36 +169,59 @@ class PacMan(GameElement):
 
 
 class Clyde(GameElement):
+    def __init__(self, x, y, t, tunelTime):
+        super().__init__(x,y,t,tunelTime)
+        self.eaten = False
+
     def loadImages(self, border):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/clyde/clyde1.png')
         paths.append('./graphics/pngFiles/ghosts/clyde/clyde2.png')
         paths.append('./graphics/pngFiles/ghosts/clyde/clyde3.png')
         super().loadImages(border, paths)
+    
+
 
 class Blinky(GameElement):
+    def __init__(self, x, y, t, tunelTime):
+        super().__init__(x,y,t,tunelTime)
+        self.eaten = False
+
     def loadImages(self, border):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky1.png')
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky2.png')
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky3.png')
         super().loadImages(border, paths)
+    
+
 
 class Inky(GameElement):
+    def __init__(self, x, y, t, tunelTime):
+        super().__init__(x,y,t,tunelTime)
+        self.eaten = False
+
     def loadImages(self, border):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/inky/inky1.png')
         paths.append('./graphics/pngFiles/ghosts/inky/inky2.png')
         paths.append('./graphics/pngFiles/ghosts/inky/inky3.png')
         super().loadImages(border, paths)
+    
+
 
 class Pinky(GameElement):
+    def __init__(self, x, y, t, tunelTime):
+        super().__init__(x,y,t,tunelTime)
+        self.eaten = False
+
     def loadImages(self, border):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky1.png')
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky2.png')
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky3.png')
         super().loadImages(border, paths)
+    
 
 
-        
+

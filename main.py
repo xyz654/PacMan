@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import time
 import numpy as np
 from enums import Direction
 from interactive import PacMan
@@ -51,6 +52,9 @@ class Game:
 
         #gracz
         self.playerMoveTime = 20
+        self.dinnerDuration = 5
+        self.startDinnerTime = None
+        self.dinnerBonus = 200
 
         #pobieram dane i je przypisuje do odpowiednich zmiennych
         self.boardTab = np.zeros((self.nX, self.nY))
@@ -318,7 +322,8 @@ class Game:
         
         #rysowanie duszkow
         for ghost in self.ghosts:
-            self.screen.blit(ghost.getImage(), (self.dx+ghost.xNormalized*self.border, self.dy+ghost.yNormalized*self.border))
+            if not ghost.eaten:
+                self.screen.blit(ghost.getImage(), (self.dx+ghost.xNormalized*self.border, self.dy+ghost.yNormalized*self.border))
 
         #rysowanie Pac-Mana
         self.screen.blit(self.player.getImage(), (self.dx+self.player.xNormalized*self.border, self.dy+self.player.yNormalized*self.border))
@@ -351,6 +356,7 @@ class Game:
             #potwierdzam poprzednia zmiane pozycji
             self.player.confirmPosition(self.tunels)
 
+            
             #pobieram dane do zmiennych lokalnych by latwiej sie ich uzywalo
             xp = self.player.x
             yp = self.player.y
@@ -364,12 +370,28 @@ class Game:
             if self.boardTab[xp][yp] == 3:
                 self.player.dotScore += 40
                 self.boardTab[xp][yp] = 0
+                #jak zjem duza kropke to moge zjadac duszki
+                self.startDinnerTime = time.time()
+                self.dinnerBonus = 200
+
+            #sprawdzam czy moge jesc duszki
+            canBeEaten = False
+            if self.startDinnerTime != None and time.time() - self.startDinnerTime < self.dinnerDuration:
+                canBeEaten = True
+            else:
+                self.startDinnerTime = None
             
             #sprawdzam czy wszedlem na duszka
             for ghost in self.ghosts:
                 if ghost.x == self.player.x and ghost.y == self.player.y:
-                    # self.player.hp -= 1
-                    break
+                    #jesli moge jesc to zjadam jesli nie to trace hp
+                    if canBeEaten:
+                        ghost.eaten = True
+                        self.player.otherScore += self.dinnerBonus
+                        self.dinnerBonus *= 2
+                    else:
+                        self.player.hp -= 1
+                        break
 
 
             #sprawdzam koniec gry
