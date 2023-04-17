@@ -97,16 +97,19 @@ class GameElement:
             self.xNormalized = self.x
             self.yNormalized = self.y
 
-    def loadImages(self, unit, imagesPaths):
+    def loadImages(self, imagesPaths):
         #laduje obrazki
         self.frames = []
         for imgPath in imagesPaths:
             self.frames.append(pygame.image.load(imgPath))
+        
+    
+    def scaleImages(self, unit):
         #skaluje zaladowane obrazki
         for i in range(len(self.frames)):
             self.frames[i] = pygame.transform.scale(self.frames[i], (unit, unit))
 
-    def getImage(self):
+    def getImage(self, tab):
         #co jakis czas zmieniam returnowany obrazek
         currTime = time.time()
         if currTime - self.imageTime >= self.imageDuration:
@@ -115,13 +118,13 @@ class GameElement:
         
         #wyswietlam obrazek
         toReturn = None
-        if self.imageIterator >= len(self.frames):
-            if self.imageIterator >= 2*len(self.frames):
+        if self.imageIterator >= len(tab):
+            if self.imageIterator >= 2*len(tab):
                 self.imageIterator = 0
             else:
-                toReturn = self.frames[len(self.frames) - self.imageIterator-1]
+                toReturn = tab[len(tab) - self.imageIterator-1]
         if toReturn == None:
-            toReturn = self.frames[self.imageIterator]
+            toReturn = tab[self.imageIterator]
 
         return toReturn
 
@@ -134,7 +137,7 @@ class PacMan(GameElement):
         self.dotScore = 0
         self.otherScore = 0
 
-    def loadImages(self, unit):
+    def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/pacman/pacman1.png')
         paths.append('./graphics/pngFiles/pacman/pacman2.png')
@@ -142,10 +145,10 @@ class PacMan(GameElement):
         paths.append('./graphics/pngFiles/pacman/pacman4.png')
         paths.append('./graphics/pngFiles/pacman/pacman5.png')
         paths.append('./graphics/pngFiles/pacman/pacman6.png')
-        super().loadImages(unit, paths)
+        super().loadImages(paths)
     
     def getImage(self):
-        toReturn = super().getImage()
+        toReturn = super().getImage(self.frames)
 
         #obracanie w zaleznosci od kierunku ruchu
         if self.direction == Direction.NORTH:
@@ -167,60 +170,71 @@ class PacMan(GameElement):
 
         return toReturn
 
-
-class Clyde(GameElement):
+class Ghost(GameElement):
     def __init__(self, x, y, t, tunelTime):
         super().__init__(x,y,t,tunelTime)
         self.eaten = False
+    
+    def loadImages(self, imagesPaths):
+        #laduje obrazki do zjedzenia
+        eatenPaths = ['./graphics/pngFiles/ghosts/blue/blue1.png',
+                      './graphics/pngFiles/ghosts/blue/blue2.png',
+                      './graphics/pngFiles/ghosts/blue/blue3.png']
+        self.eatenImgs = []
+        for imgPath in eatenPaths:
+            self.eatenImgs.append(pygame.image.load(imgPath))
 
-    def loadImages(self, unit):
+        return super().loadImages(imagesPaths)
+    
+    def scaleImages(self, unit):
+        #skaluje zaladowane obrazki zjescable duszkow
+        for i in range(len(self.eatenImgs)):
+            self.eatenImgs[i] = pygame.transform.scale(self.eatenImgs[i], (unit, unit))
+        return super().scaleImages(unit)
+
+    def getImage(self, canBeEaten):
+        if canBeEaten:
+            return super().getImage(self.eatenImgs)
+        return super().getImage(self.frames)
+
+
+class Clyde(Ghost):
+    def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/clyde/clyde1.png')
         paths.append('./graphics/pngFiles/ghosts/clyde/clyde2.png')
         paths.append('./graphics/pngFiles/ghosts/clyde/clyde3.png')
-        super().loadImages(unit, paths)
+        super().loadImages(paths)
     
 
 
-class Blinky(GameElement):
-    def __init__(self, x, y, t, tunelTime):
-        super().__init__(x,y,t,tunelTime)
-        self.eaten = False
-
-    def loadImages(self, unit):
+class Blinky(Ghost):
+    def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky1.png')
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky2.png')
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky3.png')
-        super().loadImages(unit, paths)
+        super().loadImages(paths)
     
 
 
-class Inky(GameElement):
-    def __init__(self, x, y, t, tunelTime):
-        super().__init__(x,y,t,tunelTime)
-        self.eaten = False
-
-    def loadImages(self, unit):
+class Inky(Ghost):
+    def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/inky/inky1.png')
         paths.append('./graphics/pngFiles/ghosts/inky/inky2.png')
         paths.append('./graphics/pngFiles/ghosts/inky/inky3.png')
-        super().loadImages(unit, paths)
+        super().loadImages(paths)
     
 
 
-class Pinky(GameElement):
-    def __init__(self, x, y, t, tunelTime):
-        super().__init__(x,y,t,tunelTime)
-        self.eaten = False
-
-    def loadImages(self, unit):
+class Pinky(Ghost):
+    def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky1.png')
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky2.png')
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky3.png')
-        super().loadImages(unit, paths)
+        super().loadImages(paths)
     
 
 

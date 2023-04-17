@@ -70,6 +70,9 @@ class Game:
         #laduje obrazki
         self.loadImages()
         
+        #skaluje obrazki
+        self.scaleImages()
+        
         #tworze graf w postaci listy sasiedztwa
         self.tunels = []
         self.graph = None
@@ -197,74 +200,88 @@ class Game:
 
     def loadImages(self):
         #obrazki pacmana i duszkow
-        self.player.loadImages(self.unit) 
+        self.player.loadImages() 
         for ghost in self.ghosts:
-            ghost.loadImages(self.unit)
+            ghost.loadImages()
 
         #obrazki hp
         for pac in self.hpTab:
-            pac.loadImages(self.unit*2)
+            pac.loadImages()
             pac.direction = Direction.EAST
 
         #wisienka 
         self.cherryImg = pygame.image.load('./graphics/pngFiles/bonusItems/cherries.png')
-        self.cherryImg = pygame.transform.scale(self.cherryImg, (self.unit, self.unit))
 
         #kropki
         self.dotImg = pygame.image.load('./graphics/pngFiles/bonusItems/dot.png')
-        self.dotImg = pygame.transform.scale(self.dotImg, (self.unit, self.unit))
-
         self.bigDotImg = pygame.image.load('./graphics/pngFiles/bonusItems/bigDot.png')
-        self.bigDotImg = pygame.transform.scale(self.bigDotImg, (self.unit, self.unit))
 
         #czworka
         self.nesw = pygame.image.load('./graphics/pngFiles/walls/czworka.png')
-        self.nesw = pygame.transform.scale(self.nesw, (self.unit, self.unit))
 
         #trojki
         self.nwe = pygame.image.load('./graphics/pngFiles/walls/trojka1.png')
-        self.nwe = pygame.transform.scale(self.nwe, (self.unit, self.unit))
-
         self.ens = pygame.image.load('./graphics/pngFiles/walls/trojka2.png')
-        self.ens = pygame.transform.scale(self.ens, (self.unit, self.unit))
-
         self.swe = pygame.image.load('./graphics/pngFiles/walls/trojka3.png')
-        self.swe = pygame.transform.scale(self.swe, (self.unit, self.unit))
-
         self.wns = pygame.image.load('./graphics/pngFiles/walls/trojka4.png')
-        self.wns = pygame.transform.scale(self.wns, (self.unit, self.unit))
 
         #proste - piony i poziomy
         self.ns = pygame.image.load('./graphics/pngFiles/walls/pion.png')
-        self.ns = pygame.transform.scale(self.ns, (self.unit, self.unit))
-
         self.we = pygame.image.load('./graphics/pngFiles/walls/poziom.png')
-        self.we = pygame.transform.scale(self.we, (self.unit, self.unit))
 
         #zakrety - narozniki
         self.ne = pygame.image.load('./graphics/pngFiles/walls/naroznik1.png')
-        self.ne = pygame.transform.scale(self.ne, (self.unit, self.unit))
-
         self.se = pygame.image.load('./graphics/pngFiles/walls/naroznik2.png')
-        self.se = pygame.transform.scale(self.se, (self.unit, self.unit))
-
         self.sw = pygame.image.load('./graphics/pngFiles/walls/naroznik3.png')
-        self.sw = pygame.transform.scale(self.sw, (self.unit, self.unit))
-
         self.nw = pygame.image.load('./graphics/pngFiles/walls/naroznik4.png')
-        self.nw = pygame.transform.scale(self.nw, (self.unit, self.unit))
 
         #koncowki
         self.endN = pygame.image.load('./graphics/pngFiles/walls/koncowka1.png')
-        self.endN = pygame.transform.scale(self.endN, (self.unit, self.unit))
-
         self.endE = pygame.image.load('./graphics/pngFiles/walls/koncowka2.png')
-        self.endE = pygame.transform.scale(self.endE, (self.unit, self.unit))
-
         self.endS = pygame.image.load('./graphics/pngFiles/walls/koncowka3.png')
-        self.endS = pygame.transform.scale(self.endS, (self.unit, self.unit))
-
         self.endW = pygame.image.load('./graphics/pngFiles/walls/koncowka4.png')
+
+    def scaleImages(self):
+        #obrazki pacmana i duszkow
+        self.player.scaleImages(self.unit) 
+        for ghost in self.ghosts:
+            ghost.scaleImages(self.unit)
+
+        #obrazki hp
+        for pac in self.hpTab:
+            pac.scaleImages(self.unit*2)
+            pac.direction = Direction.EAST
+
+        #wisienka 
+        self.cherryImg = pygame.transform.scale(self.cherryImg, (self.unit, self.unit))
+
+        #kropki
+        self.dotImg = pygame.transform.scale(self.dotImg, (self.unit, self.unit))
+        self.bigDotImg = pygame.transform.scale(self.bigDotImg, (self.unit, self.unit))
+
+        #czworka
+        self.nesw = pygame.transform.scale(self.nesw, (self.unit, self.unit))
+
+        #trojki
+        self.nwe = pygame.transform.scale(self.nwe, (self.unit, self.unit))
+        self.ens = pygame.transform.scale(self.ens, (self.unit, self.unit))
+        self.swe = pygame.transform.scale(self.swe, (self.unit, self.unit))
+        self.wns = pygame.transform.scale(self.wns, (self.unit, self.unit))
+
+        #proste - piony i poziomy
+        self.ns = pygame.transform.scale(self.ns, (self.unit, self.unit))
+        self.we = pygame.transform.scale(self.we, (self.unit, self.unit))
+
+        #zakrety - narozniki
+        self.ne = pygame.transform.scale(self.ne, (self.unit, self.unit))
+        self.se = pygame.transform.scale(self.se, (self.unit, self.unit))
+        self.sw = pygame.transform.scale(self.sw, (self.unit, self.unit))
+        self.nw = pygame.transform.scale(self.nw, (self.unit, self.unit))
+
+        #koncowki
+        self.endN = pygame.transform.scale(self.endN, (self.unit, self.unit))
+        self.endE = pygame.transform.scale(self.endE, (self.unit, self.unit))
+        self.endS = pygame.transform.scale(self.endS, (self.unit, self.unit))
         self.endW = pygame.transform.scale(self.endW, (self.unit, self.unit))
 
     def drawWall(self, x, y):
@@ -345,9 +362,13 @@ class Game:
                 
         
         #rysowanie duszkow
+        #sprawdzam czy moge jesc duszki
+        canBeEaten = False
+        if self.startDinnerTime != None and time.time() - self.startDinnerTime < self.dinnerDuration:
+            canBeEaten = True
         for ghost in self.ghosts:
             if not ghost.eaten:
-                self.screen.blit(ghost.getImage(), (self.dx+ghost.xNormalized*self.unit, self.dy+ghost.yNormalized*self.unit))
+                self.screen.blit(ghost.getImage(canBeEaten), (self.dx+ghost.xNormalized*self.unit, self.dy+ghost.yNormalized*self.unit))
 
         #rysowanie Pac-Mana
         self.screen.blit(self.player.getImage(), (self.dx+self.player.xNormalized*self.unit, self.dy+self.player.yNormalized*self.unit))
@@ -429,7 +450,7 @@ class Game:
             
             #sprawdzam czy wszedlem na duszka
             for ghost in self.ghosts:
-                if ghost.x == self.player.x and ghost.y == self.player.y:
+                if not ghost.eaten and ghost.x == self.player.x and ghost.y == self.player.y:
                     #jesli moge jesc to zjadam jesli nie to trace hp
                     if canBeEaten:
                         ghost.eaten = True
@@ -545,7 +566,8 @@ class Game:
                 #zmiana rozmiaru okna - koniecznosc przeliczenia niektorych zmiennych
                 elif event.type == pygame.WINDOWEXPOSED:
                     self.calculateScreen()
-                    self.loadImages()
+                    #skaluje obrazki
+                    self.scaleImages()
 
                 #keydowny
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -578,5 +600,5 @@ class Game:
 
 
 
-# game = Game("./maps/first.npy")
-# game.run()
+game = Game("./maps/first.npy")
+game.run()
