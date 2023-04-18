@@ -30,7 +30,7 @@ class GameElement:
         elif self.direction == Direction.WEST:
             self.xNormalized -= self.v
 
-    def confirmPosition(self, tunels):
+    def confirmPosition(self, tunels, nx, ny):
         #jesli jestem w tunelu i odczekuje opoznienie
         if self.isInTunel:
             #sprawdzam czas
@@ -45,9 +45,25 @@ class GameElement:
             if tunels[0] == (self.x, self.y):
                 self.x = tunels[1][0]
                 self.y = tunels[1][1]
+                if self.x == 0:
+                    self.direction = Direction.EAST
+                elif self.x == nx-1:
+                    self.direction = Direction.WEST
+                elif self.y == 0:
+                    self.direction = Direction.SOUTH
+                elif self.y == ny-1:
+                    self.direction = Direction.NORTH
             else:
                 self.x = tunels[0][0]
                 self.y = tunels[0][1]
+                if self.x == 0:
+                    self.direction = Direction.EAST
+                elif self.x == nx-1:
+                    self.direction = Direction.WEST
+                elif self.y == 0:
+                    self.direction = Direction.SOUTH
+                elif self.y == ny-1:
+                    self.direction = Direction.NORTH
             self.xNormalized = self.x
             self.yNormalized = self.y
 

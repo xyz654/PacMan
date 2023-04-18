@@ -420,7 +420,7 @@ class Game:
         #Pac-Man
         if self.counter % self.playerMoveTime == 0:
             #potwierdzam poprzednia zmiane pozycji
-            self.player.confirmPosition(self.tunels)
+            self.player.confirmPosition(self.tunels, self.nX, self.nY)
 
             
             #pobieram dane do zmiennych lokalnych by latwiej sie ich uzywalo
@@ -606,5 +606,5 @@ class Game:
 
 
 
-game = Game("./maps/first.npy")
-game.run()
+# game = Game("./maps/first.npy")
+# game.run()
