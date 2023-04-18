@@ -381,9 +381,9 @@ class Game:
 
         #przeslony na tunele
         x, y = self.tunels[0]
-        pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.unit,self.dy+y*self.unit,self.unit,self.unit))
+        pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.unit,self.dy+y*self.unit,self.unit+1,self.unit+1))
         x, y = self.tunels[1]
-        pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.unit,self.dy+y*self.unit,self.unit,self.unit))
+        pygame.draw.rect(self.screen, BLACK, (self.dx+x*self.unit,self.dy+y*self.unit,self.unit+1,self.unit+1))
         #przeslony pionowe (boki)
         pygame.draw.rect(self.screen, BLACK, (0, 0, self.dx, self.screen_height))
         pygame.draw.rect(self.screen, BLACK, (self.dx+self.nX*self.unit, 0, self.dx, self.screen_height))
