@@ -180,6 +180,8 @@ class Game:
                     #Pac-Man
                     elif self.boardTab[i][j] == 4:
                         self.player = PacMan(i,j, self.playerMoveTime, self.tunelTime, hp)
+                        self.pacX = i
+                        self.pacY = j
                         self.boardTab[i][j] = 2
                         self.dotScore += 10
     
@@ -454,14 +456,15 @@ class Game:
             #sprawdzam czy wszedlem na duszka
             for ghost in self.ghosts:
                 if not ghost.eaten and ghost.x == self.player.x and ghost.y == self.player.y:
-                    #jesli moge jesc to zjadam jesli nie to trace hp
+                    #jesli moge jesc to zjadam jesli nie to trace hp i zostaje przeniesiony na miejsce startowe
                     if canBeEaten:
                         ghost.eaten = True
                         self.player.otherScore += self.dinnerBonus
                         self.dinnerBonus *= 2
                     else:
                         self.player.hp -= 1
-                        break
+                        self.player.backToPosition(self.pacX, self.pacY)
+                        
 
 
             #sprawdzam koniec gry
@@ -603,5 +606,5 @@ class Game:
 
 
 
-# game = Game("./maps/first.npy")
-# game.run()
+game = Game("./maps/first.npy")
+game.run()

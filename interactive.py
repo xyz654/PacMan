@@ -137,6 +137,14 @@ class PacMan(GameElement):
         self.dotScore = 0
         self.otherScore = 0
 
+    def backToPosition(self, posX, posY):
+        self.x = posX
+        self.y = posY
+        self.xNormalized = posX
+        self.yNormalized = posY
+        self.direction = None
+        self.nextDirection = None
+        
     def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/pacman/pacman1.png')
