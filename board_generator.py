@@ -57,8 +57,6 @@ class BoardGenerator:
 
 
         #glowne zmienne
-        self.difficulty=1
-        self.difficulty_to_save = 1
         self.isRunning = False
         self.mousePos = pygame.mouse.get_pos()
         self.mouse_is_pressed = False
@@ -74,6 +72,8 @@ class BoardGenerator:
         self.cherry_to_save=30
         self.boostTime=30
         self.boostTime_to_save=30
+        self.tunelTime=0.5
+        self.tunelTime_to_save=0.5
         
         
         #graf poruszania sie pac-mana - reprezentacja macierzowa 
@@ -330,11 +330,10 @@ class BoardGenerator:
         return False
 
     def save(self):
-        path = filedialog.asksaveasfile(defaultextension=".npy")
+        path = filedialog.asksaveasfile(initialdir="./maps", defaultextension=".npy")
         if path != None:
             with open(path.name, 'wb') as f:
-                print(self.isDraftBoard)
-                np.save(f, np.array([self.difficulty_to_save, self.cherry_to_save, self.hp_to_save, self.isDraftBoard, self.boostTime_to_save]))
+                np.save(f, np.array([self.difficulty_to_save, self.cherry_to_save, self.hp_to_save, self.isDraftBoard, self.boostTime_to_save, self.tunelTime_to_save]))
                 for i in range(self.nX):
                     for j in range(self.nY):
                         np.save(f, np.array([self.boardTab[i][j]]))
@@ -355,11 +354,13 @@ class BoardGenerator:
             self.hp_to_save = int(round(self.hp.get(), 0))
             self.cherry_to_save=int(round(self.cherry.get(), 0))
             self.boostTime_to_save=int(round(self.boostTime.get(), 0))
-
+            self.tunelTime_to_save=round(self.tunelTime.get(),1)
+            
             difficultyLabel.config(text="Current difficulty: "+str(self.difficulty_to_save))
             hpLabel.config(text="Current hp: "+str(self.hp_to_save))
             cherryLabel.config(text="Current time: "+str(self.cherry_to_save)+"s")
             boostTimeLabel.config(text="Current boost time: "+str(self.boostTime_to_save)+"s")
+            tunelTimeLabel.config(text="Current tunel time: "+str(self.tunelTime_to_save)+"s")
         
         def ifCorrect():
             result = self.check_correct()
@@ -455,6 +456,23 @@ class BoardGenerator:
 
         boostTimeLabel = ttk.Label(root, text="Current boost time: "+str(self.boostTime_to_save)+"s")
         boostTimeLabel.pack()
+
+        #czas w tunelu
+
+        ttk.Label(root, text="Set the tunel time:").pack()
+        self.tunelTime = tk.DoubleVar()
+        ttk.Scale(
+                            root,
+                            from_=0,
+                            to=2,
+                            orient='horizontal', 
+                            variable=self.tunelTime,
+                            command=updateSlider
+                        ).pack()
+
+        tunelTimeLabel = ttk.Label(root, text="Current tunel time: "+str(self.tunelTime_to_save)+"s")
+        tunelTimeLabel.pack()
+
 
         correctButton = ttk.Button(root, text="Check correct", command=ifCorrect)
         correctButton.pack()

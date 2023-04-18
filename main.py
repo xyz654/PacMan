@@ -60,6 +60,7 @@ class Game:
         self.startDinnerTime = None
         self.dinnerBonus = 200
 
+
         #pobieram dane i je przypisuje do odpowiednich zmiennych
         self.boardTab = np.zeros((self.nX, self.nY))
         self.loadData(path)
@@ -153,11 +154,13 @@ class Game:
             with open(path, 'rb') as f:
                 #zbieranie statystyk
                 stats = np.load(f)
-                self.difficulty = stats[0]
-                self.cherryTime = stats[1]
-                hp = stats[2]
+                self.difficulty = (int)(stats[0])
+                self.cherryTime = (int)(stats[1])
+                hp = (int)(stats[2])
                 self.hpTab = [PacMan(1,1,1,1,1) for i in range(hp)]
-                self.dinnerDuration = stats[4]
+                self.dinnerDuration = (int)(stats[4])
+                self.tunelTime=stats[5]
+
                 #zbieranie planszy
                 for i in range(self.nX):
                     for j in range(self.nY):
@@ -176,7 +179,7 @@ class Game:
                         self.boardTab[i][j] = 0
                     #Pac-Man
                     elif self.boardTab[i][j] == 4:
-                        self.player = PacMan(i,j, self.playerMoveTime, 0.5, hp)
+                        self.player = PacMan(i,j, self.playerMoveTime, self.tunelTime, hp)
                         self.boardTab[i][j] = 2
                         self.dotScore += 10
     

@@ -16,7 +16,7 @@ def runNewGenerator():
     
 def runDraftGenerator():
     #pobieram sciezke
-    path = filedialog.askopenfile()
+    path = filedialog.askopenfile(initialdir="./maps")
     if path!=None:
         file_extension = os.path.splitext(path.name)[1]
         if file_extension == ".npy":
@@ -31,13 +31,12 @@ def loadData(path):
     with open(path, 'rb') as f:
         #zbieranie statystyk
         stats = np.load(f)
-        print(stats[3])
         return stats[3]
 
 
 
 def runGame():
-    path = filedialog.askopenfile()
+    path = filedialog.askopenfile(initialdir="./maps")
     if path!=None:
         file_extension = os.path.splitext(path.name)[1]
         if file_extension == ".npy":
