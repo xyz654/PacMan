@@ -65,6 +65,12 @@ class Game:
         self.boardTab = np.zeros((self.nX, self.nY))
         self.loadData(path)
 
+        #tworze graf w postaci listy sasiedztwa
+        self.tunels = []
+        self.graph = None
+        self.makeGraph()
+
+
         #umiejscowanie duszkow
         self.placeGhosts()
 
@@ -73,11 +79,6 @@ class Game:
         
         #skaluje obrazki
         self.scaleImages()
-        
-        #tworze graf w postaci listy sasiedztwa
-        self.tunels = []
-        self.graph = None
-        self.makeGraph()
 
         # zegar
         self.counter = 1
@@ -416,13 +417,28 @@ class Game:
             self.activeGame = False
 
     def moveAll(self):
+        #POZWOLENIE NA JEDZENIE
+        canBeEaten = False
+        if self.startDinnerTime != None and time.time() - self.startDinnerTime < self.dinnerDuration:
+            canBeEaten = True
+        else:
+            self.startDinnerTime = None
+
+        #ZDERZENIA 
+        crashedGhosts = []
+        for ghost in self.ghosts:
+            dx = abs(self.player.xNormalized - ghost.xNormalized)
+            dy = abs(self.player.yNormalized - ghost.yNormalized)
+            if not ghost.eaten and dx <= 2/self.playerMoveTime and dy <= 2/self.playerMoveTime:
+                crashedGhosts.append(ghost)
+        
+
         #ZMIANY KIERUNKU RUCHU
         #Pac-Man
         if self.counter % self.playerMoveTime == 0:
             #potwierdzam poprzednia zmiane pozycji
             self.player.confirmPosition(self.tunels, self.nX, self.nY)
 
-            
             #pobieram dane do zmiennych lokalnych by latwiej sie ich uzywalo
             xp = self.player.x
             yp = self.player.y
@@ -445,33 +461,6 @@ class Game:
                 self.boardTab[xp][yp] = 0
                 self.cherryExist = False
                 self.cherryStartTime = time.time()
-
-            #sprawdzam czy moge jesc duszki
-            canBeEaten = False
-            if self.startDinnerTime != None and time.time() - self.startDinnerTime < self.dinnerDuration:
-                canBeEaten = True
-            else:
-                self.startDinnerTime = None
-            
-            #sprawdzam czy wszedlem na duszka
-            for ghost in self.ghosts:
-                if not ghost.eaten and ghost.x == self.player.x and ghost.y == self.player.y:
-                    #jesli moge jesc to zjadam jesli nie to trace hp i zostaje przeniesiony na miejsce startowe
-                    if canBeEaten:
-                        ghost.eaten = True
-                        self.player.otherScore += self.dinnerBonus
-                        self.dinnerBonus *= 2
-                    else:
-                        self.player.hp -= 1
-                        self.player.backToPosition(self.pacX, self.pacY)
-                        
-
-
-            #sprawdzam koniec gry
-            self.checkWinOrDefeat()
-
-            #tworze ew wisienki
-            self.cherryService()
 
             
             #pobieram sasiadow aktualnego pola na ktorym jest pac-man
@@ -504,10 +493,73 @@ class Game:
                 if xp != 0:
                     self.player.direction = None
             
+            #sprawdzam czy wszedlem na duszka
+            for ghost in crashedGhosts:
+                #jesli moge jesc to zjadam jesli nie to trace hp i zostaje przeniesiony na miejsce startowe
+                if canBeEaten:
+                    ghost.eaten = True
+                    self.player.otherScore += self.dinnerBonus
+                    self.dinnerBonus *= 2
+                else:
+                    self.player.hp -= 1
+                    self.player.backToPosition(self.pacX, self.pacY)
+                        
 
+
+            #sprawdzam koniec gry
+            self.checkWinOrDefeat()
+
+            #tworze ew wisienki
+            self.cherryService()
+        
+        #Duszki
+        if self.counter % self.playerMoveTime == 0:
+            for ghost in self.ghosts:
+                #potwierdzam poprzednia zmiane pozycji
+                ghost.confirmPosition(self.tunels, self.nX, self.nY)
+
+                #pobieram aktualna pozycje
+                xp = ghost.x
+                yp = ghost.y
+
+                #pobieram sasiadow aktualnego pola na ktorym jest duszek
+                neighbours = self.graph[xp][yp]
+
+                #INPLEMENTACJA TYMCZASOWA
+                #zeby duszki nie chodzily gora-dol, prawo-lewo to zmniejszam szanse na zmiane kierunku jak jest tylko 2 sasiadow
+                if len(neighbours) == 2 and random.randint(0, 5) > 3:
+                    if ghost.direction == Direction.NORTH and (xp, yp-1) not in neighbours:
+                        ghost.direction = None
+                    elif ghost.direction == Direction.SOUTH and (xp, yp+1) not in neighbours:
+                        ghost.direction = None
+                    elif ghost.direction == Direction.EAST and (xp+1, yp) not in neighbours:
+                        ghost.direction = None
+                    elif ghost.direction == Direction.WEST and (xp-1, yp) not in neighbours:
+                        ghost.direction = None
+                else:
+                    #szukam gdzie pojde
+                    nextPosition = random.choice(neighbours)
+
+                    #teraz szukam jaki musi byc kierunek by tam poszedl
+                    if nextPosition[0] == xp:
+                        if nextPosition[1] == yp-1:
+                            ghost.direction = Direction.NORTH
+                        else:
+                            ghost.direction = Direction.SOUTH
+                    else:
+                        if nextPosition[0] == xp-1:
+                            ghost.direction = Direction.WEST
+                        else:
+                            ghost.direction = Direction.EAST
+
+            
         #RUCH
         #Pac-Man
         self.player.move()
+        #Duszki
+        for ghost in self.ghosts:
+            ghost.move(self.playerMoveTime)
+
 
     def cherryService(self):
         #tworze wisienke tylko jesli jeszcze jej nie ma i gracz zjadl juz co najmniej 1/4 wszytskich kropek
@@ -552,6 +604,31 @@ class Game:
             if self.boardTab[x][y] == 2:
                 self.ghosts.append(Pinky(x,y,self.playerMoveTime,0.8))
                 break
+        
+        #kazdemu z duszkow szukam kierunku
+        for ghost in self.ghosts:
+            #pobieram aktualna pozycje
+            xp = ghost.x
+            yp = ghost.y
+
+            #pobieram sasiadow aktualnego pola na ktorym jest duszek
+            neighbours = self.graph[xp][yp]
+                
+            #wybieram nowy kierunek(jesli jest skrzyzowanie -> czyli jesli jest liczba sasiadow rozna od 2, jesli jest rowna 2, to musi to byc 'kacik')
+            if len(neighbours) != 2 or (len(neighbours) == 2 and (neighbours[0][0] != neighbours[1][0] and neighbours[0][1] != neighbours[1][1])):
+                #szukam gdzie pojde
+                nextPosition = random.choice(neighbours)
+                #teraz szukam jaki musi byc kierunek by tam poszedl
+                if nextPosition[0] == xp:
+                    if nextPosition[1] == yp-1:
+                        ghost.direction = Direction.NORTH
+                    else:
+                        ghost.direction = Direction.SOUTH
+                else:
+                    if nextPosition[0] == xp-1:
+                        ghost.direction = Direction.WEST
+                    else:
+                        ghost.direction = Direction.EAST
 
 
     def run(self):
@@ -606,5 +683,5 @@ class Game:
 
 
 
-# game = Game("./maps/first.npy")
-# game.run()
+game = Game("./maps/first.npy")
+game.run()

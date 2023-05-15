@@ -119,7 +119,6 @@ class GameElement:
         for imgPath in imagesPaths:
             self.frames.append(pygame.image.load(imgPath))
         
-    
     def scaleImages(self, unit):
         #skaluje zaladowane obrazki
         for i in range(len(self.frames)):
@@ -209,6 +208,11 @@ class Ghost(GameElement):
             self.eatenImgs.append(pygame.image.load(imgPath))
 
         return super().loadImages(imagesPaths)
+
+    
+    def move(self, t):
+        self.v = 1/t
+        super().move()
     
     def scaleImages(self, unit):
         #skaluje zaladowane obrazki zjescable duszkow
