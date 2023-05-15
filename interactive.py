@@ -194,9 +194,10 @@ class PacMan(GameElement):
         return toReturn
 
 class Ghost(GameElement):
-    def __init__(self, x, y, t, tunelTime):
+    def __init__(self, x, y, t, tunelTime, type):
         super().__init__(x,y,t,tunelTime)
         self.eaten = False
+        self.type = type
     
     def loadImages(self, imagesPaths):
         #laduje obrazki do zjedzenia
@@ -209,7 +210,6 @@ class Ghost(GameElement):
 
         return super().loadImages(imagesPaths)
 
-    
     def move(self, t):
         self.v = 1/t
         super().move()
@@ -227,6 +227,10 @@ class Ghost(GameElement):
 
 
 class Clyde(Ghost):
+    def __init__(self, x, y, t, tunelTime):
+        super().__init__(x, y, t, tunelTime, "Clyde")
+
+
     def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/clyde/clyde1.png')
@@ -237,6 +241,10 @@ class Clyde(Ghost):
 
 
 class Blinky(Ghost):
+    def __init__(self, x, y, t, tunelTime):
+        super().__init__(x, y, t, tunelTime, "Blinky")
+
+
     def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky1.png')
@@ -247,6 +255,10 @@ class Blinky(Ghost):
 
 
 class Inky(Ghost):
+    def __init__(self, x, y, t, tunelTime):
+        super().__init__(x, y, t, tunelTime, "Inky")
+
+
     def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/inky/inky1.png')
@@ -257,6 +269,10 @@ class Inky(Ghost):
 
 
 class Pinky(Ghost):
+    def __init__(self, x, y, t, tunelTime):
+        super().__init__(x, y, t, tunelTime, "Pinky")
+
+
     def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky1.png')

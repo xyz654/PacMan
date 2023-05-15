@@ -419,14 +419,14 @@ class Game:
     def moveAll(self):
         #POZWOLENIE NA JEDZENIE I EWENTUALNE SPOWALNIANIE DUSZKOW
         canBeEaten = False
-        slowDelta = 1.8
+        slowDelta = 2 #powinno byc calkowite, jak nie jest to nie ma plynnosci
         ghostMoveTime = self.playerMoveTime
         if self.startDinnerTime != None and time.time() - self.startDinnerTime < self.dinnerDuration:
             canBeEaten = True
             #spowalniam
             ghostMoveTime *= slowDelta
         elif self.startDinnerTime != None:
-            #czekam na duchy zeby nie bylo to przejscie plynne
+            #czekam na duchy zeby przejscie bylo plynne
             ghostMoveTime *= slowDelta
             if self.counter % ghostMoveTime < 2:
                 ghostMoveTime /= slowDelta
@@ -440,7 +440,8 @@ class Game:
         for ghost in self.ghosts:
             dx = abs(self.player.xNormalized - ghost.xNormalized)
             dy = abs(self.player.yNormalized - ghost.yNormalized)
-            if not ghost.eaten and dx <= 2/self.playerMoveTime and dy <= 2/self.playerMoveTime:
+            #ta 2 to sb tak wymyslilem zeby byl jakis margines
+            if not ghost.eaten and dx <= 2/ghostMoveTime and dy <= 2/ghostMoveTime:
                 crashedGhosts.append(ghost)
         
 
@@ -464,9 +465,10 @@ class Game:
                 self.player.dotScore += 40
                 self.boardTab[xp][yp] = 0
                 #jak zjem duza kropke to moge zjadac duszki
+                if self.startDinnerTime == None:
+                    self.counter = 0
                 self.startDinnerTime = time.time()
                 self.dinnerBonus = 200
-                self.counter = 0
             #wisienki
             if self.boardTab[xp][yp] == 6:
                 self.player.otherScore += 100
@@ -508,6 +510,7 @@ class Game:
             #sprawdzam czy wszedlem na duszka
             for ghost in crashedGhosts:
                 #jesli moge jesc to zjadam jesli nie to trace hp i zostaje przeniesiony na miejsce startowe
+                print("YYY")
                 if canBeEaten:
                     ghost.eaten = True
                     self.player.otherScore += self.dinnerBonus
