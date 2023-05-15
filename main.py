@@ -417,10 +417,21 @@ class Game:
             self.activeGame = False
 
     def moveAll(self):
-        #POZWOLENIE NA JEDZENIE
+        #POZWOLENIE NA JEDZENIE I EWENTUALNE SPOWALNIANIE DUSZKOW
         canBeEaten = False
+        slowDelta = 1.8
+        ghostMoveTime = self.playerMoveTime
         if self.startDinnerTime != None and time.time() - self.startDinnerTime < self.dinnerDuration:
             canBeEaten = True
+            #spowalniam
+            ghostMoveTime *= slowDelta
+        elif self.startDinnerTime != None:
+            #czekam na duchy zeby nie bylo to przejscie plynne
+            ghostMoveTime *= slowDelta
+            if self.counter % ghostMoveTime < 2:
+                ghostMoveTime /= slowDelta
+                self.counter = 0
+                self.startDinnerTime = None
         else:
             self.startDinnerTime = None
 
@@ -455,6 +466,7 @@ class Game:
                 #jak zjem duza kropke to moge zjadac duszki
                 self.startDinnerTime = time.time()
                 self.dinnerBonus = 200
+                self.counter = 0
             #wisienki
             if self.boardTab[xp][yp] == 6:
                 self.player.otherScore += 100
@@ -513,7 +525,7 @@ class Game:
             self.cherryService()
         
         #Duszki
-        if self.counter % self.playerMoveTime == 0:
+        if self.counter % ghostMoveTime == 0:
             for ghost in self.ghosts:
                 #potwierdzam poprzednia zmiane pozycji
                 ghost.confirmPosition(self.tunels, self.nX, self.nY)
@@ -528,6 +540,7 @@ class Game:
                 #INPLEMENTACJA TYMCZASOWA
                 #zeby duszki nie chodzily gora-dol, prawo-lewo to zmniejszam szanse na zmiane kierunku jak jest tylko 2 sasiadow
                 if len(neighbours) == 2 and random.randint(0, 5) > 3:
+                    #sprawiam ze nie beda robily niedozwolonych rzeczy
                     if ghost.direction == Direction.NORTH and (xp, yp-1) not in neighbours:
                         ghost.direction = None
                     elif ghost.direction == Direction.SOUTH and (xp, yp+1) not in neighbours:
@@ -536,6 +549,7 @@ class Game:
                         ghost.direction = None
                     elif ghost.direction == Direction.WEST and (xp-1, yp) not in neighbours:
                         ghost.direction = None
+
                 else:
                     #szukam gdzie pojde
                     nextPosition = random.choice(neighbours)
@@ -558,7 +572,7 @@ class Game:
         self.player.move()
         #Duszki
         for ghost in self.ghosts:
-            ghost.move(self.playerMoveTime)
+            ghost.move(ghostMoveTime)
 
 
     def cherryService(self):
