@@ -700,5 +700,5 @@ class Game:
 
 
 
-game = Game("./maps/first.npy")
-game.run()
+# game = Game("./maps/first.npy")
+# game.run()
