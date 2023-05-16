@@ -76,6 +76,7 @@ class Game:
 
 
         #umiejscowanie duszkow
+        self.ghosts = []
         self.placeGhosts()
 
         #laduje obrazki
@@ -448,7 +449,7 @@ class Game:
 
         #INPLEMENTACJA TYMCZASOWA
         #zeby duszki nie chodzily gora-dol, prawo-lewo to zmniejszam szanse na zmiane kierunku jak jest tylko 2 sasiadow
-        if len(neighbours) == 2 and random.randint(0, 5) > 3:
+        if len(neighbours) == 2 and random.randint(0, 5) > 3 and self.boardTab[xp][yp] != 5:
             #sprawiam ze nie beda robily niedozwolonych rzeczy
             if ghost.direction == Direction.NORTH and (xp, yp-1) not in neighbours:
                 if yp != 0:
@@ -462,8 +463,8 @@ class Game:
             elif ghost.direction == Direction.WEST and (xp-1, yp) not in neighbours:
                 if xp != 0:
                     ghost.direction = None
-
-        else:
+        #tunel
+        elif self.boardTab[xp][yp] != 5:
             #szukam gdzie pojde
             nextPosition = random.choice(neighbours)
 
@@ -497,9 +498,7 @@ class Game:
                 self.counter = 0
                 self.startDinnerTime = None
                 #respawnuje wszystkie zjedzone w tym czasie duszki
-                for ghost in self.ghosts:
-                    if ghost.eaten:
-                        self.placeGhosts(ghost)
+                self.placeGhosts()
         else:
             self.startDinnerTime = None
 
@@ -625,11 +624,9 @@ class Game:
                         self.cherryExist = True
                         break
 
-    def placeGhosts(self, ghost = None):
+    def placeGhosts(self):
         #jesli nie ma jeszcze duszkow
-        if ghost == None:
-            self.ghosts=[]
-
+        if len(self.ghosts) == 0:
             pos = random.choice(self.ghostRespawnArea)
             self.ghosts.append(Clyde(pos[0], pos[1], self.playerMoveTime, 0.8))
 
@@ -641,10 +638,12 @@ class Game:
 
             pos = random.choice(self.ghostRespawnArea)
             self.ghosts.append(Pinky(pos[0], pos[1], self.playerMoveTime, 0.8))
-        #jesli podano duszka
+        #jesli sa duszki to po prostu ozywiam te ktore sa zjedzone
         else:
-            pos = random.choice(self.ghostRespawnArea)
-            ghost.respawn(pos[0], pos[1])
+            for ghost in self.ghosts:
+                if ghost.eaten:
+                    pos = random.choice(self.ghostRespawnArea)
+                    ghost.respawn(pos[0], pos[1])
         
 
 
