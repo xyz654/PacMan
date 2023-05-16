@@ -175,7 +175,6 @@ class Menu:
 
     def specificMap(self):
 
-        generator=[]
         def sortNames():
             generator.sort()
             i=1
@@ -183,6 +182,7 @@ class Menu:
             for elem in generator:
                 listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
+
         def sortDescLevel():
             generator_sort=sorted(generator,key=lambda x: x[1], reverse=True)
             print(generator_sort)
@@ -191,6 +191,7 @@ class Menu:
             for elem in generator_sort:
                 listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
+
         def sortAscLevel():
             generator_sort=sorted(generator,key=lambda x: x[1], reverse=False)
             print(generator_sort)
@@ -199,10 +200,17 @@ class Menu:
             for elem in generator_sort:
                 listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
+
         def chosen():
             for i in listbox.curselection():
                 game = main.Game("maps/"+listbox.get(i).split(" ",1)[0])
+                root2.destroy()
                 game.run()
+                break
+
+
+
+        generator=[]
         onlyfiles = [f for f in listdir("./maps") if isfile(join("./maps", f))]
         
         #statystyki
@@ -270,14 +278,13 @@ class Menu:
             # create listbox object
             listbox = tk.Listbox(root2, height = 10,
                   width = 300,
-                  bg = "yellow",
                   font = "Helvetica",
                   fg = "black")
            
  
             i=1
             for elem in generator:
-                listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                listbox.insert(i, "name: {:<10s} \t  level: {:>2d} \t played: {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
  
             # pack the widgets
@@ -288,9 +295,7 @@ class Menu:
             tk.Button(root2, text="Sort by name", command=sortNames).pack()
             tk.Button(root2, text="Sort descending by level", command=sortDescLevel).pack()
             tk.Button(root2, text="Sort ascending by level", command=sortAscLevel).pack()
-            # tk.Button(root2, text="Sort descending by number of games", command=sortDscGames).pack()
-            # tk.Button(root2, text="Sort ascending by number of games", command=sortAscGames).pack()
-            tk.Button(root2, text="Chosen map", command=chosen).pack()
+            tk.Button(root2, text="Play on chosen map", command=chosen).pack()
             
             root2.mainloop()
 

@@ -665,7 +665,7 @@ class Game:
                 #zamykanie okna
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    sys.exit()
+                    # sys.exit()
 
                 #zmiana rozmiaru okna - koniecznosc przeliczenia niektorych zmiennych
                 elif event.type == pygame.WINDOWEXPOSED:
