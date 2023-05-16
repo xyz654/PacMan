@@ -181,7 +181,7 @@ class Menu:
             i=1
             listbox.delete(0,tk.END)
             for elem in generator:
-                listbox.insert(i, "{:<10s}  {:>2f} {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
         def sortDescLevel():
             generator_sort=sorted(generator,key=lambda x: x[1], reverse=True)
@@ -189,7 +189,7 @@ class Menu:
             i=1
             listbox.delete(0,tk.END)
             for elem in generator_sort:
-                listbox.insert(i, "{:<10s}  {:>2f} {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
         def sortAscLevel():
             generator_sort=sorted(generator,key=lambda x: x[1], reverse=False)
@@ -197,8 +197,12 @@ class Menu:
             i=1
             listbox.delete(0,tk.END)
             for elem in generator_sort:
-                listbox.insert(i, "{:<10s}  {:>2f} {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
+        def chosen():
+            for i in listbox.curselection():
+                game = main.Game("maps/"+listbox.get(i).split(" ",1)[0])
+                game.run()
         onlyfiles = [f for f in listdir("./maps") if isfile(join("./maps", f))]
         
         #statystyki
@@ -214,13 +218,14 @@ class Menu:
                     for stat in stats:
                         if stat[0] == map:
                             statystics=int(stat[1])
+                    level=int(currentStats[0])
                     if statystics:
-                        generator.append((map,currentStats[0],statystics))
+                        generator.append((map,level,statystics))
                     else:
-                        generator.append((map,currentStats[0],0))
+                        generator.append((map,level,0))
 
         
-        #sprawdzenie czy jest taki level dostepny
+        #sprawdzenie czy sa jakies mapy
         if len(generator)==0:
             #tworze okno
             root2 = tk.Tk()
@@ -278,12 +283,14 @@ class Menu:
             # pack the widgets
             listbox.pack()
 
+            
+
             tk.Button(root2, text="Sort by name", command=sortNames).pack()
             tk.Button(root2, text="Sort descending by level", command=sortDescLevel).pack()
             tk.Button(root2, text="Sort ascending by level", command=sortAscLevel).pack()
             # tk.Button(root2, text="Sort descending by number of games", command=sortDscGames).pack()
             # tk.Button(root2, text="Sort ascending by number of games", command=sortAscGames).pack()
-
+            tk.Button(root2, text="Chosen map", command=chosen).pack()
             
             root2.mainloop()
 
