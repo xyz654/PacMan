@@ -130,7 +130,8 @@ class Menu:
         #losowo wybieram mape
         x=random.choice(generator)
         # subroot.destroy()
-        game = main.Game("maps/"+x)
+        print("./maps/"+x)
+        game = main.Game("./maps/"+x)
         game.run()
 
     def levelMap(self):
@@ -180,14 +181,15 @@ class Menu:
             i=1
             listbox.delete(0,tk.END)
             for elem in generator:
-                listbox.insert(i, "{:<10s}  {:>2f} ".format(elem[0], elem[1]) )
+                listbox.insert(i, "{:<10s}  {:>2f} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
         def sortDescLevel():
             generator_sort=sorted(generator,key=lambda x: x[1], reverse=True)
+            print(generator_sort)
             i=1
             listbox.delete(0,tk.END)
             for elem in generator_sort:
-                listbox.insert(i, "{:<10s}  {:>2f} ".format(elem[0], elem[1]) )
+                listbox.insert(i, "{:<10s}  {:>2f} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
         def sortAscLevel():
             generator_sort=sorted(generator,key=lambda x: x[1], reverse=False)
@@ -195,15 +197,31 @@ class Menu:
             i=1
             listbox.delete(0,tk.END)
             for elem in generator_sort:
-                listbox.insert(i, "{:<10s}  {:>2f} ".format(elem[0], elem[1]) )
+                listbox.insert(i, "{:<10s}  {:>2f} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
         onlyfiles = [f for f in listdir("./maps") if isfile(join("./maps", f))]
         
-        for map in onlyfiles:
-            currentStats=self.loadData("maps/"+map)
+        #statystyki
+        stats = np.array([])
+        with open("./mapStats.npy", 'rb') as f:
+            #zbieram nazwe aktualnej planszy
+            stats = np.load(f)
+            for map in onlyfiles:
+                currentStats=self.loadData("maps/"+map)
             #jesli nie jest wersja roboczca to dodaje do losowania
-            if currentStats[3]==0:
-                generator.append((map,currentStats[0]))
+                if currentStats[3]==0:
+                    statystics=0
+                    for stat in stats:
+                        print("statystykiii", stat[0], map)
+                        if stat[0] == map:
+                            statystics=int(stat[1])
+                    if statystics:
+                        generator.append((map,currentStats[0],statystics))
+                    else:
+                        generator.append((map,currentStats[0],0))
+            f.close()
+
+        
         #sprawdzenie czy jest taki level dostepny
         if len(generator)==0:
             #tworze okno
@@ -246,21 +264,17 @@ class Menu:
             root2.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
             
  
-# create listbox object
+            # create listbox object
             listbox = tk.Listbox(root2, height = 10,
                   width = 300,
                   bg = "yellow",
-                #   activestyle = 'dotbox',
                   font = "Helvetica",
                   fg = "black")
            
  
-            # insert elements by their
-            # index and names.
-            # listbox.insert(0, "Map name" "Stats")
             i=1
             for elem in generator:
-                listbox.insert(i, "{:<10s}  {:>2f} ".format(elem[0], elem[1]) )
+                listbox.insert(i, "{:<10s}  {:>2f} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
  
             # pack the widgets
@@ -269,16 +283,12 @@ class Menu:
             tk.Button(root2, text="Sort by name", command=sortNames).pack()
             tk.Button(root2, text="Sort descending by level", command=sortDescLevel).pack()
             tk.Button(root2, text="Sort ascending by level", command=sortAscLevel).pack()
+            # tk.Button(root2, text="Sort descending by number of games", command=sortDscGames).pack()
+            # tk.Button(root2, text="Sort ascending by number of games", command=sortAscGames).pack()
+
             
-            
-            # Display until User
-            # exits themselves.
             root2.mainloop()
 
-            #listuje mapy
-            # for map in generator:
-            #     ttk.Label(root2, text=map)
-            
 
 
     def updateSlider(self,event):

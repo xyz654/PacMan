@@ -705,8 +705,7 @@ class Game:
         
         #statystyki
         stats = np.array([])
-        # with open("./mapStats.npy", 'wb') as f:
-        #     np.save(f, stats)
+
         with open("./mapStats.npy", 'rb') as f:
             #zbieranie statystyk
             stats = np.load(f)
@@ -728,11 +727,11 @@ class Game:
             if not exist:
                 stats.append([currMapName, 1])
             
-            print(stats)
             stats = np.array(stats)
             
             #zapis 
             np.save(f, stats)
+            f.close()
         
         #wyjscie z okna
         pygame.quit()
@@ -742,5 +741,5 @@ class Game:
             
             
 
-# game = Game("./maps/first.npy")
+# game = Game("./maps/correct.npy")
 # game.run()
