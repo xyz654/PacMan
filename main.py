@@ -53,14 +53,15 @@ class Game:
         self.activeGame = True
         self.cherryExist = False
         self.cherryStartTime = time.time()
-        self.ghostRespawnArea = []
-        self.crashedGhostsSet = set([])
 
         #gracz
         self.playerMoveTime = 20
         self.startDinnerTime = None
         self.dinnerBonus = 200
 
+        #duszki
+        self.ghostRespawnArea = []
+        self.crashedGhostsSet = set([])
 
         #pobieram dane i je przypisuje do odpowiednich zmiennych
         self.boardTab = np.zeros((self.nX, self.nY))
@@ -149,6 +150,20 @@ class Game:
                         #gora
                         if self.boardTab[i][j-1] != 1 and self.boardTab[i][j-1] != 0:
                             self.graph[i][j].append((i,j-1))
+                #obsluga respawnu duszkow
+                elif self.boardTab[i][j] == 0:
+                    #lewo
+                    if self.boardTab[i-1][j] != 1:
+                        self.graph[i][j].append((i-1,j))
+                    #prawo
+                    if self.boardTab[i+1][j] != 1: 
+                        self.graph[i][j].append((i+1,j))
+                    #gora
+                    if self.boardTab[i][j-1] != 1:
+                        self.graph[i][j].append((i,j-1))
+                    #dol
+                    if self.boardTab[i][j+1] != 1:
+                        self.graph[i][j].append((i,j+1))
 
     def findPathForGhosts(self):
         for startPosition in self.ghostRespawnArea:
@@ -423,6 +438,48 @@ class Game:
         if self.player.dotScore == self.dotScore:
             self.activeGame = False
 
+    def ghostsAI(self, ghost):
+        #pobieram aktualna pozycje
+        xp = ghost.x
+        yp = ghost.y
+
+        #pobieram sasiadow aktualnego pola na ktorym jest duszek
+        neighbours = self.graph[xp][yp]
+
+        #INPLEMENTACJA TYMCZASOWA
+        #zeby duszki nie chodzily gora-dol, prawo-lewo to zmniejszam szanse na zmiane kierunku jak jest tylko 2 sasiadow
+        if len(neighbours) == 2 and random.randint(0, 5) > 3:
+            #sprawiam ze nie beda robily niedozwolonych rzeczy
+            if ghost.direction == Direction.NORTH and (xp, yp-1) not in neighbours:
+                if yp != 0:
+                    ghost.direction = None
+            elif ghost.direction == Direction.SOUTH and (xp, yp+1) not in neighbours:
+                if yp != self.nY-1:
+                    ghost.direction = None
+            elif ghost.direction == Direction.EAST and (xp+1, yp) not in neighbours:
+                if xp != self.nX-1:
+                    ghost.direction = None
+            elif ghost.direction == Direction.WEST and (xp-1, yp) not in neighbours:
+                if xp != 0:
+                    ghost.direction = None
+
+        else:
+            #szukam gdzie pojde
+            nextPosition = random.choice(neighbours)
+
+            #teraz szukam jaki musi byc kierunek by tam poszedl
+            if nextPosition[0] == xp:
+                if nextPosition[1] == yp-1:
+                    ghost.direction = Direction.NORTH
+                else:
+                    ghost.direction = Direction.SOUTH
+            else:
+                if nextPosition[0] == xp-1:
+                    ghost.direction = Direction.WEST
+                else:
+                    ghost.direction = Direction.EAST
+
+
     def moveAll(self):
         #POZWOLENIE NA JEDZENIE I EWENTUALNE SPOWALNIANIE DUSZKOW
         canBeEaten = False
@@ -439,6 +496,10 @@ class Game:
                 ghostMoveTime /= slowDelta
                 self.counter = 0
                 self.startDinnerTime = None
+                #respawnuje wszystkie zjedzone w tym czasie duszki
+                for ghost in self.ghosts:
+                    if ghost.eaten:
+                        self.placeGhosts(ghost)
         else:
             self.startDinnerTime = None
 
@@ -539,47 +600,9 @@ class Game:
             for ghost in self.ghosts:
                 #potwierdzam poprzednia zmiane pozycji
                 ghost.confirmPosition(self.tunels, self.nX, self.nY)
-
-                #pobieram aktualna pozycje
-                xp = ghost.x
-                yp = ghost.y
-
-                #pobieram sasiadow aktualnego pola na ktorym jest duszek
-                neighbours = self.graph[xp][yp]
-
-                #INPLEMENTACJA TYMCZASOWA
-                #zeby duszki nie chodzily gora-dol, prawo-lewo to zmniejszam szanse na zmiane kierunku jak jest tylko 2 sasiadow
-                if len(neighbours) == 2 and random.randint(0, 5) > 3:
-                    #sprawiam ze nie beda robily niedozwolonych rzeczy
-                    if ghost.direction == Direction.NORTH and (xp, yp-1) not in neighbours:
-                        if yp != 0:
-                            ghost.direction = None
-                    elif ghost.direction == Direction.SOUTH and (xp, yp+1) not in neighbours:
-                        if yp != self.nY-1:
-                            ghost.direction = None
-                    elif ghost.direction == Direction.EAST and (xp+1, yp) not in neighbours:
-                        if xp != self.nX-1:
-                            ghost.direction = None
-                    elif ghost.direction == Direction.WEST and (xp-1, yp) not in neighbours:
-                        if xp != 0:
-                            ghost.direction = None
-
-
-                else:
-                    #szukam gdzie pojde
-                    nextPosition = random.choice(neighbours)
-
-                    #teraz szukam jaki musi byc kierunek by tam poszedl
-                    if nextPosition[0] == xp:
-                        if nextPosition[1] == yp-1:
-                            ghost.direction = Direction.NORTH
-                        else:
-                            ghost.direction = Direction.SOUTH
-                    else:
-                        if nextPosition[0] == xp-1:
-                            ghost.direction = Direction.WEST
-                        else:
-                            ghost.direction = Direction.EAST
+                #ustawiam kazdemu duszkowi kolejny kierunek
+                self.ghostsAI(ghost)
+                
 
             
         #RUCH
@@ -602,62 +625,27 @@ class Game:
                         self.cherryExist = True
                         break
 
+    def placeGhosts(self, ghost = None):
+        #jesli nie ma jeszcze duszkow
+        if ghost == None:
+            self.ghosts=[]
 
-    #metoda robocza
-    def placeGhosts(self):
-        self.ghosts=[]
-        while True:
-            x = random.randint(1,self.nX-2)
-            y = random.randint(1,self.nY-2)
-            if self.boardTab[x][y] == 2:
-                self.ghosts.append(Clyde(x,y,self.playerMoveTime,0.8))
-                break
-        
-        while True:
-            x = random.randint(1,self.nX-2)
-            y = random.randint(1,self.nY-2)
-            if self.boardTab[x][y] == 2:
-                self.ghosts.append(Blinky(x,y,self.playerMoveTime,0.8))
-                break
-        
-        while True:
-            x = random.randint(1,self.nX-2)
-            y = random.randint(1,self.nY-2)
-            if self.boardTab[x][y] == 2:
-                self.ghosts.append(Inky(x,y,self.playerMoveTime,0.8))
-                break
+            pos = random.choice(self.ghostRespawnArea)
+            self.ghosts.append(Clyde(pos[0], pos[1], self.playerMoveTime, 0.8))
 
-        while True:
-            x = random.randint(1,self.nX-2)
-            y = random.randint(1,self.nY-2)
-            if self.boardTab[x][y] == 2:
-                self.ghosts.append(Pinky(x,y,self.playerMoveTime,0.8))
-                break
-        
-        #kazdemu z duszkow szukam kierunku
-        for ghost in self.ghosts:
-            #pobieram aktualna pozycje
-            xp = ghost.x
-            yp = ghost.y
+            pos = random.choice(self.ghostRespawnArea)
+            self.ghosts.append(Inky(pos[0], pos[1], self.playerMoveTime, 0.8))
 
-            #pobieram sasiadow aktualnego pola na ktorym jest duszek
-            neighbours = self.graph[xp][yp]
-                
-            #wybieram nowy kierunek(jesli jest skrzyzowanie -> czyli jesli jest liczba sasiadow rozna od 2, jesli jest rowna 2, to musi to byc 'kacik')
-            if len(neighbours) != 2 or (len(neighbours) == 2 and (neighbours[0][0] != neighbours[1][0] and neighbours[0][1] != neighbours[1][1])):
-                #szukam gdzie pojde
-                nextPosition = random.choice(neighbours)
-                #teraz szukam jaki musi byc kierunek by tam poszedl
-                if nextPosition[0] == xp:
-                    if nextPosition[1] == yp-1:
-                        ghost.direction = Direction.NORTH
-                    else:
-                        ghost.direction = Direction.SOUTH
-                else:
-                    if nextPosition[0] == xp-1:
-                        ghost.direction = Direction.WEST
-                    else:
-                        ghost.direction = Direction.EAST
+            pos = random.choice(self.ghostRespawnArea)
+            self.ghosts.append(Blinky(pos[0], pos[1], self.playerMoveTime, 0.8))
+
+            pos = random.choice(self.ghostRespawnArea)
+            self.ghosts.append(Pinky(pos[0], pos[1], self.playerMoveTime, 0.8))
+        #jesli podano duszka
+        else:
+            pos = random.choice(self.ghostRespawnArea)
+            ghost.respawn(pos[0], pos[1])
+        
 
 
     def run(self):

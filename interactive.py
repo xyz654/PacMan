@@ -214,6 +214,15 @@ class Ghost(GameElement):
         self.v = 1/t
         super().move()
     
+    def respawn(self, x, y):
+        self.x = x
+        self.y = y
+        self.xNormalized = x
+        self.yNormalized = y
+        self.direction = None
+        self.nextDirection = None
+        self.eaten = False
+
     def scaleImages(self, unit):
         #skaluje zaladowane obrazki zjescable duszkow
         for i in range(len(self.eatenImgs)):
