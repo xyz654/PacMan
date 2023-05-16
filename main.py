@@ -183,7 +183,8 @@ class Game:
                 hp = (int)(stats[2])
                 self.hpTab = [PacMan(1,1,1,1,1) for i in range(hp)]
                 self.dinnerDuration = (int)(stats[4])
-                self.tunelTime=stats[5]
+                self.tunelTime = stats[5]
+                self.ghostsTunelTime = stats[6]
 
                 #zbieranie planszy
                 for i in range(self.nX):
@@ -628,16 +629,16 @@ class Game:
         #jesli nie ma jeszcze duszkow
         if len(self.ghosts) == 0:
             pos = random.choice(self.ghostRespawnArea)
-            self.ghosts.append(Clyde(pos[0], pos[1], self.playerMoveTime, 0.8))
+            self.ghosts.append(Clyde(pos[0], pos[1], self.playerMoveTime, self.ghostsTunelTime))
 
             pos = random.choice(self.ghostRespawnArea)
-            self.ghosts.append(Inky(pos[0], pos[1], self.playerMoveTime, 0.8))
+            self.ghosts.append(Inky(pos[0], pos[1], self.playerMoveTime, self.ghostsTunelTime))
 
             pos = random.choice(self.ghostRespawnArea)
-            self.ghosts.append(Blinky(pos[0], pos[1], self.playerMoveTime, 0.8))
+            self.ghosts.append(Blinky(pos[0], pos[1], self.playerMoveTime, self.ghostsTunelTime))
 
             pos = random.choice(self.ghostRespawnArea)
-            self.ghosts.append(Pinky(pos[0], pos[1], self.playerMoveTime, 0.8))
+            self.ghosts.append(Pinky(pos[0], pos[1], self.playerMoveTime, self.ghostsTunelTime))
         #jesli sa duszki to po prostu ozywiam te ktore sa zjedzone
         else:
             for ghost in self.ghosts:
@@ -699,5 +700,5 @@ class Game:
 
 
 
-game = Game("./maps/first.npy")
-game.run()
+# game = Game("./maps/first.npy")
+# game.run()
