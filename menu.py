@@ -199,7 +199,7 @@ class Menu:
 
         def chosen():
             for i in listbox.curselection():
-                game = main.Game("maps/"+listbox.get(i).split(" ",1)[0])
+                game = main.Game("maps/"+listbox.get(i).split(" ",2)[1])
                 root2.destroy()
                 game.run()
                 break
@@ -225,7 +225,16 @@ class Menu:
             i=1
             listbox.delete(0,tk.END)
             for elements in generator:
-                if inp in elements[0]:
+                if elements[0].startswith(inp):
+                    listbox.insert(i, "name: {:<10s} \t  level: {:>2d} \t played: {:<5d} ".format(elements[0], elements[1], elements[2]) )
+                    i+=1
+        def findlevel():
+            inp = inputtxtLevel.get(1.0, "end-1c")
+            generator_new=[]
+            i=1
+            listbox.delete(0,tk.END)
+            for elements in generator:
+                if elements[1]==int(inp):
                     listbox.insert(i, "name: {:<10s} \t  level: {:>2d} \t played: {:<5d} ".format(elements[0], elements[1], elements[2]) )
                     i+=1
 
@@ -316,11 +325,18 @@ class Menu:
             tk.Button(root2, text="Sort ascending by level", command=sortAscLevel).pack()
             tk.Button(root2, text="Sort descending by number of games", command=sortDscGames).pack()
             tk.Button(root2, text="Sort ascending by number of games", command=sortAscGames).pack()
-            inputtxt = tk.Text(root2, height = 1.5, width = 30)   
+            inputtxt = tk.Text(root2, height = 1, width = 30)   
             inputtxt.pack()
                 
             printButton = tk.Button(root2, text = "Find", command = find)
             printButton.pack()
+
+            inputtxtLevel = tk.Text(root2, height = 1, width = 10)   
+            inputtxtLevel.pack()
+                
+            printButtonLevel = tk.Button(root2, text = "Find level", command = findlevel)
+            printButtonLevel.pack()
+
             tk.Button(root2, text="Play on chosen map", command=chosen).pack()
             
             root2.mainloop()
