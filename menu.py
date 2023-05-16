@@ -277,7 +277,7 @@ class Menu:
  
             i=1
             for elem in generator:
-                listbox.insert(i, "{:<10s}  {:>2f} {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
  
             # pack the widgets
