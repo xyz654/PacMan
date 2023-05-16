@@ -183,7 +183,6 @@ class Menu:
 
         def sortDescLevel():
             generator_sort=sorted(generator,key=lambda x: x[1], reverse=True)
-            print(generator_sort)
             i=1
             listbox.delete(0,tk.END)
             for elem in generator_sort:
@@ -192,7 +191,6 @@ class Menu:
 
         def sortAscLevel():
             generator_sort=sorted(generator,key=lambda x: x[1], reverse=False)
-            print(generator_sort)
             i=1
             listbox.delete(0,tk.END)
             for elem in generator_sort:
@@ -206,7 +204,30 @@ class Menu:
                 game.run()
                 break
 
+        def sortAscGames():
+            generator_sort=sorted(generator,key=lambda x: x[2], reverse=False)
+            i=1
+            listbox.delete(0,tk.END)
+            for elem in generator_sort:
+                listbox.insert(i, "name: {:<10s} \t  level: {:>2d} \t played: {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                i+=1
 
+        def sortDscGames():
+            generator_sort=sorted(generator,key=lambda x: x[2], reverse=True)
+            i=1
+            listbox.delete(0,tk.END)
+            for elem in generator_sort:
+                listbox.insert(i, "name: {:<10s} \t  level: {:>2d} \t played: {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                i+=1
+        def find():
+            inp = inputtxt.get(1.0, "end-1c")
+            generator_new=[]
+            i=1
+            listbox.delete(0,tk.END)
+            for elements in generator:
+                if inp in elements[0]:
+                    listbox.insert(i, "name: {:<10s} \t  level: {:>2d} \t played: {:<5d} ".format(elements[0], elements[1], elements[2]) )
+                    i+=1
 
         generator=[]
         onlyfiles = [f for f in listdir("./maps") if isfile(join("./maps", f))]
@@ -293,6 +314,13 @@ class Menu:
             tk.Button(root2, text="Sort by name", command=sortNames).pack()
             tk.Button(root2, text="Sort descending by level", command=sortDescLevel).pack()
             tk.Button(root2, text="Sort ascending by level", command=sortAscLevel).pack()
+            tk.Button(root2, text="Sort descending by number of games", command=sortDscGames).pack()
+            tk.Button(root2, text="Sort ascending by number of games", command=sortAscGames).pack()
+            inputtxt = tk.Text(root2, height = 1.5, width = 30)   
+            inputtxt.pack()
+                
+            printButton = tk.Button(root2, text = "Find", command = find)
+            printButton.pack()
             tk.Button(root2, text="Play on chosen map", command=chosen).pack()
             
             root2.mainloop()
