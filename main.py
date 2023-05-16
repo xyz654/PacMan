@@ -3,6 +3,7 @@ import sys
 import random
 import time
 import numpy as np
+import os
 from enums import Direction
 from interactive import PacMan
 from interactive import Clyde, Blinky, Inky, Pinky
@@ -23,6 +24,8 @@ ORANGE = (255, 69, 0)
 class Game:
     def __init__(self, path):
         pygame.init()
+
+        self.path=path
 
         #glowne stale
         self.FPS = 60
@@ -436,6 +439,7 @@ class Game:
         #przegrana
         if self.player.hp <= 0:
             self.activeGame = False
+
         #wygrana
         if self.player.dotScore == self.dotScore:
             self.activeGame = False
@@ -698,7 +702,45 @@ class Game:
             #kontroluje FPS
             self.clock.tick(self.FPS)
 
+        
+        #statystyki
+        stats = np.array([])
+        # with open("./mapStats.npy", 'wb') as f:
+        #     np.save(f, stats)
+        with open("./mapStats.npy", 'rb') as f:
+            #zbieranie statystyk
+            stats = np.load(f)
+            newStats = []
+            for stat in stats:
+                newStats.append(list(stat))
+            stats = newStats
+        with open("./mapStats.npy", 'wb') as f:
+            #zbieram nazwe aktualnej planszy
+            currMapName = os.path.basename(self.path)
+            #jezeli juz gralem na tej mapie to inkrementuje licznik
+            exist = False
+            for stat in stats:
+                if stat[0] == currMapName:
+                    stat[1] = int(stat[1])+1
+                    exist = True
+                    break
+            #jesli nie to dodaje mape do listy
+            if not exist:
+                stats.append([currMapName, 1])
+            
+            print(stats)
+            stats = np.array(stats)
+            
+            #zapis 
+            np.save(f, stats)
+        
+        #wyjscie z okna
+        pygame.quit()
+            
 
+            
+            
+            
 
 # game = Game("./maps/first.npy")
 # game.run()
