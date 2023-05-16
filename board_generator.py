@@ -80,13 +80,13 @@ class BoardGenerator:
         self.graph=np.zeros((self.nX*self.nY, self.nX*self.nY))
 
         #lista budowy
-        self.buildTab = [False,  #rubber 
-                        False,  #wall
-                        False,  #floor
-                        False,  #big dot
-                        False,  #Pac-Man
-                        False,   #tunnel
-                        False    #duszki
+        self.buildTab = [False,  #rubber -> 0
+                        False,  #wall -> 1
+                        False,  #floor -> 2
+                        False,  #big dot -> 3
+                        False,  #Pac-Man -> 4
+                        False,   #tunnel -> 5
+                        False    #duszki -> 6
                         ]  
 
         self.counters = [0 for el in self.buildTab]

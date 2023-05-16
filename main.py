@@ -54,6 +54,7 @@ class Game:
         self.cherryExist = False
         self.cherryStartTime = time.time()
         self.ghostRespawnArea = []
+        self.crashedGhostsSet = set([])
 
         #gracz
         self.playerMoveTime = 20
@@ -69,6 +70,8 @@ class Game:
         self.tunels = []
         self.graph = None
         self.makeGraph()
+
+        self.findPathForGhosts()
 
 
         #umiejscowanie duszkow
@@ -146,6 +149,10 @@ class Game:
                         #gora
                         if self.boardTab[i][j-1] != 1 and self.boardTab[i][j-1] != 0:
                             self.graph[i][j].append((i,j-1))
+
+    def findPathForGhosts(self):
+        for startPosition in self.ghostRespawnArea:
+            pass
 
     def loadData(self, path):
         self.dotScore = 0
@@ -436,13 +443,12 @@ class Game:
             self.startDinnerTime = None
 
         #ZDERZENIA 
-        crashedGhosts = []
         for ghost in self.ghosts:
             dx = abs(self.player.xNormalized - ghost.xNormalized)
             dy = abs(self.player.yNormalized - ghost.yNormalized)
-            #ta 2 to sb tak wymyslilem zeby byl jakis margines
-            if not ghost.eaten and dx <= 2/ghostMoveTime and dy <= 2/ghostMoveTime:
-                crashedGhosts.append(ghost)
+            #ta 0.3 to margines bledu, ktory sb sam wymyslilem, dla ktorego to w miare dzialalo
+            if not ghost.eaten and dx < 0.3 and dy < 0.3:
+                self.crashedGhostsSet.add(ghost)
         
 
         #ZMIANY KIERUNKU RUCHU
@@ -508,9 +514,8 @@ class Game:
                     self.player.direction = None
             
             #sprawdzam czy wszedlem na duszka
-            for ghost in crashedGhosts:
+            for ghost in self.crashedGhostsSet:
                 #jesli moge jesc to zjadam jesli nie to trace hp i zostaje przeniesiony na miejsce startowe
-                print("YYY")
                 if canBeEaten:
                     ghost.eaten = True
                     self.player.otherScore += self.dinnerBonus
@@ -518,6 +523,8 @@ class Game:
                 else:
                     self.player.hp -= 1
                     self.player.backToPosition(self.pacX, self.pacY)
+            #czyszcze set duszkow
+            self.crashedGhostsSet = set([])
                         
 
 
@@ -545,13 +552,18 @@ class Game:
                 if len(neighbours) == 2 and random.randint(0, 5) > 3:
                     #sprawiam ze nie beda robily niedozwolonych rzeczy
                     if ghost.direction == Direction.NORTH and (xp, yp-1) not in neighbours:
-                        ghost.direction = None
+                        if yp != 0:
+                            ghost.direction = None
                     elif ghost.direction == Direction.SOUTH and (xp, yp+1) not in neighbours:
-                        ghost.direction = None
+                        if yp != self.nY-1:
+                            ghost.direction = None
                     elif ghost.direction == Direction.EAST and (xp+1, yp) not in neighbours:
-                        ghost.direction = None
+                        if xp != self.nX-1:
+                            ghost.direction = None
                     elif ghost.direction == Direction.WEST and (xp-1, yp) not in neighbours:
-                        ghost.direction = None
+                        if xp != 0:
+                            ghost.direction = None
+
 
                 else:
                     #szukam gdzie pojde
@@ -700,5 +712,5 @@ class Game:
 
 
 
-# game = Game("./maps/first.npy")
-# game.run()
+game = Game("./maps/first.npy")
+game.run()
