@@ -705,7 +705,8 @@ class Game:
         
         #statystyki
         stats = np.array([])
-
+        # with open("./mapStats.npy", 'wb') as f:
+        #     np.save(f, stats)
         with open("./mapStats.npy", 'rb') as f:
             #zbieranie statystyk
             stats = np.load(f)

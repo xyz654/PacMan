@@ -212,14 +212,12 @@ class Menu:
                 if currentStats[3]==0:
                     statystics=0
                     for stat in stats:
-                        print("statystykiii", stat[0], map)
                         if stat[0] == map:
                             statystics=int(stat[1])
                     if statystics:
                         generator.append((map,currentStats[0],statystics))
                     else:
                         generator.append((map,currentStats[0],0))
-            f.close()
 
         
         #sprawdzenie czy jest taki level dostepny
@@ -346,5 +344,5 @@ class Menu:
 
     
 
-menu=Menu()
+menu = Menu()
 
