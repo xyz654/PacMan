@@ -7,6 +7,7 @@ import os
 from enums import Direction
 from interactive import PacMan
 from interactive import Clyde, Blinky, Inky, Pinky
+import tkinter as tk
 
 # Define colors
 BLACK = (0, 0, 0)
@@ -439,9 +440,46 @@ class Game:
         if self.player.hp <= 0:
             self.activeGame = False
 
+            #tworze okno
+            root2 = tk.Tk()
+
+            #rozmiary
+            window_width = 200
+            window_height = 50
+
+            root2.title("Game results")
+
+            screen_width = root2.winfo_screenwidth()
+            screen_height = root2.winfo_screenheight()
+
+            centerX = int(screen_width/2 - window_width/2)
+            centerY = int(screen_height/2 - window_height/2)
+
+            root2.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
+
+            tk.Button(root2, text='Game over', command=root2.destroy).pack()
+
         #wygrana
         if self.player.dotScore == self.dotScore:
             self.activeGame = False
+            #tworze okno
+            root2 = tk.Tk()
+
+            #rozmiary
+            window_width = 200
+            window_height = 50
+
+            root2.title("End of game")
+
+            screen_width = root2.winfo_screenwidth()
+            screen_height = root2.winfo_screenheight()
+
+            centerX = int(screen_width/2 - window_width/2)
+            centerY = int(screen_height/2 - window_height/2)
+
+            root2.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
+
+            tk.Button(root2, text='You win!', command=root2.destroy).pack()
 
     def ghostsAI(self, ghost):
         #pobieram aktualna pozycje
