@@ -64,7 +64,6 @@ class Game:
 
         #duszki
         self.ghostRespawnArea = []
-        self.crashedGhostsSet = set([])
 
         #pobieram dane i je przypisuje do odpowiednich zmiennych
         self.boardTab = np.zeros((self.nX, self.nY))
@@ -513,7 +512,13 @@ class Game:
             dy = abs(self.player.yNormalized - ghost.yNormalized)
             #ta 0.3 to margines bledu, ktory sb sam wymyslilem, dla ktorego to w miare dzialalo
             if not ghost.eaten and dx < 0.3 and dy < 0.3:
-                self.crashedGhostsSet.add(ghost)
+                if canBeEaten:
+                    ghost.eaten = True
+                    self.player.otherScore += self.dinnerBonus
+                    self.dinnerBonus *= 2
+                else:
+                    self.player.hp -= 1
+                    self.player.backToPosition(self.pacX, self.pacY)
         
 
         #ZMIANY KIERUNKU RUCHU
@@ -577,21 +582,7 @@ class Game:
                 #sprawdzam czy jestem czy nie w tunelu
                 if xp != 0:
                     self.player.direction = None
-            
-            #sprawdzam czy wszedlem na duszka
-            for ghost in self.crashedGhostsSet:
-                #jesli moge jesc to zjadam jesli nie to trace hp i zostaje przeniesiony na miejsce startowe
-                if canBeEaten:
-                    ghost.eaten = True
-                    self.player.otherScore += self.dinnerBonus
-                    self.dinnerBonus *= 2
-                else:
-                    self.player.hp -= 1
-                    self.player.backToPosition(self.pacX, self.pacY)
-            #czyszcze set duszkow
-            self.crashedGhostsSet = set([])
                         
-
 
             #sprawdzam koniec gry
             self.checkWinOrDefeat()

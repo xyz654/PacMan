@@ -78,8 +78,6 @@ class Menu:
             stats = np.load(f)
             return stats
 
-
-
     def runGame(self):
         path = filedialog.askopenfile(initialdir="./maps")
         if path!=None:
@@ -164,7 +162,7 @@ class Menu:
 
 
             #widgety
-            ttk.Label(root2, text='No maps with this level, you can create your own one').pack()
+            ttk.Label(root2, text='No maps with this level!').pack()
             ttk.Button(root2, text='OK!', command=root2.destroy).pack()
         else:
             #losowo wybieram mape
@@ -180,7 +178,7 @@ class Menu:
             i=1
             listbox.delete(0,tk.END)
             for elem in generator:
-                listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                listbox.insert(i, "name: {:<10s} \t  level: {:>2d} \t played: {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
 
         def sortDescLevel():
@@ -189,7 +187,7 @@ class Menu:
             i=1
             listbox.delete(0,tk.END)
             for elem in generator_sort:
-                listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                listbox.insert(i, "name: {:<10s} \t  level: {:>2d} \t played: {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
 
         def sortAscLevel():
@@ -198,7 +196,7 @@ class Menu:
             i=1
             listbox.delete(0,tk.END)
             for elem in generator_sort:
-                listbox.insert(i, "{:<10s}  {:>2d} {:<5d} ".format(elem[0], elem[1], elem[2]) )
+                listbox.insert(i, "name: {:<10s} \t  level: {:>2d} \t played: {:<5d} ".format(elem[0], elem[1], elem[2]) )
                 i+=1
 
         def chosen():
@@ -254,7 +252,7 @@ class Menu:
 
 
             #widgety
-            ttk.Label(root2, text='No maps, you can create your own one').pack()
+            ttk.Label(root2, text='No maps').pack()
             ttk.Button(root2, text='OK!', command=root2.destroy).pack()
         else:
             #tworze okno
@@ -332,7 +330,7 @@ class Menu:
         self.subroot.resizable(True, True)
 
         #widgety
-        ttk.Label(self.subroot, text='Welcome to Pac-Man!').pack()
+        ttk.Label(self.subroot, text='Play Pac-Man!').pack()
         ttk.Button(self.subroot, text='Play on random map', command=self.randomMap).pack()
         ttk.Label(self.subroot, text="Set the difficulty:").pack()
         self.difficulty = tk.DoubleVar()
