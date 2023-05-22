@@ -1,6 +1,25 @@
 import time
 import pygame
+import random
 from enums import Direction
+
+
+# Define colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+YELLOW_LIGHT = (255, 255, 102)
+YELLOW = (255, 255, 0)
+GREY = (211, 211, 211)
+ORANGE = (255, 69, 0)
+PINK = (255, 105, 180)
+
+
+#zmienne globalne dotyczace AI duszkow
+scatterTime = 7
+chaseTime = 20
 
 
 
@@ -196,8 +215,14 @@ class PacMan(GameElement):
 class Ghost(GameElement):
     def __init__(self, x, y, t, tunelTime, type):
         super().__init__(x,y,t,tunelTime)
+        #jedzenie
         self.eaten = False
         self.type = type
+        #AI
+        self.targetX = self.xNormalized
+        self.targetY = self.yNormalized
+        self.timeAI = time.time()
+        self.isInChase = random.choice([True, False])
     
     def loadImages(self, imagesPaths):
         #laduje obrazki do zjedzenia
@@ -209,6 +234,13 @@ class Ghost(GameElement):
             self.eatenImgs.append(pygame.image.load(imgPath))
 
         return super().loadImages(imagesPaths)
+
+    def setTarget(self, player, ghosts, nX, nY):
+        #ewentualna zmiana moda
+        now = time.time()
+        if (self.isInChase and now-self.timeAI >= chaseTime) or ((not self.isInChase) and now-self.timeAI >= scatterTime):
+            self.timeAI = now
+            self.isInChase = not self.isInChase
 
     def move(self, t):
         self.v = 1/t
@@ -235,11 +267,13 @@ class Ghost(GameElement):
         return super().getImage(self.frames)
 
 
+
 class Clyde(Ghost):
     def __init__(self, x, y, t, tunelTime):
         super().__init__(x, y, t, tunelTime, "Clyde")
-
-
+        self.color = ORANGE
+        
+        
     def loadImages(self):
         paths = []
         paths.append('./graphics/pngFiles/ghosts/clyde/clyde1.png')
@@ -247,12 +281,26 @@ class Clyde(Ghost):
         paths.append('./graphics/pngFiles/ghosts/clyde/clyde3.png')
         super().loadImages(paths)
     
+    def setTarget(self, player, ghosts, nX, nY):
+        super().setTarget(player, ghosts, nX, nY)
+        
+        #w zaleznosci w jakim jest modzie, tak ustawiam target
+        if self.isInChase:
+            #jesli sciga to ma target na PacMana
+            self.targetX = player.xNormalized
+            self.targetY = player.yNormalized
+        else:
+            #jesli ucieka to ma target na lewy dolny rog 
+            self.targetX = -1
+            self.targetY = nY
+    
 
 
 class Blinky(Ghost):
     def __init__(self, x, y, t, tunelTime):
         super().__init__(x, y, t, tunelTime, "Blinky")
-
+        self.color = RED
+        
 
     def loadImages(self):
         paths = []
@@ -260,12 +308,27 @@ class Blinky(Ghost):
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky2.png')
         paths.append('./graphics/pngFiles/ghosts/blinky/blinky3.png')
         super().loadImages(paths)
+
+    def setTarget(self, player, ghosts, nX, nY):
+        super().setTarget(player, ghosts, nX, nY)
+        
+        #w zaleznosci w jakim jest modzie, tak ustawiam target
+        if self.isInChase:
+            #jesli sciga to ma target na PacMana
+            self.targetX = player.xNormalized
+            self.targetY = player.yNormalized
+        else:
+            #jesli ucieka to ma target na prawy gorny rog 
+            self.targetX = nX
+            self.targetY = -1
+
     
 
 
 class Inky(Ghost):
     def __init__(self, x, y, t, tunelTime):
         super().__init__(x, y, t, tunelTime, "Inky")
+        self.color = BLUE
 
 
     def loadImages(self):
@@ -274,12 +337,26 @@ class Inky(Ghost):
         paths.append('./graphics/pngFiles/ghosts/inky/inky2.png')
         paths.append('./graphics/pngFiles/ghosts/inky/inky3.png')
         super().loadImages(paths)
+
+    def setTarget(self, player, ghosts, nX, nY):
+        super().setTarget(player, ghosts, nX, nY)
+        
+        #w zaleznosci w jakim jest modzie, tak ustawiam target
+        if self.isInChase:
+            #jesli sciga to ma target na PacMana
+            self.targetX = player.xNormalized
+            self.targetY = player.yNormalized
+        else:
+            #jesli ucieka to ma target na prawy dolny rog 
+            self.targetX = nX
+            self.targetY = nY
     
 
 
 class Pinky(Ghost):
     def __init__(self, x, y, t, tunelTime):
         super().__init__(x, y, t, tunelTime, "Pinky")
+        self.color = PINK
 
 
     def loadImages(self):
@@ -288,6 +365,19 @@ class Pinky(Ghost):
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky2.png')
         paths.append('./graphics/pngFiles/ghosts/pinky/pinky3.png')
         super().loadImages(paths)
+
+    def setTarget(self, player, ghosts, nX, nY):
+        super().setTarget(player, ghosts, nX, nY)
+        
+        #w zaleznosci w jakim jest modzie, tak ustawiam target
+        if self.isInChase:
+            #jesli sciga to ma target na PacMana
+            self.targetX = player.xNormalized
+            self.targetY = player.yNormalized
+        else:
+            #jesli ucieka to ma target na lewy gorny rog 
+            self.targetX = -1
+            self.targetY = -1
     
 
 

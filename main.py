@@ -19,6 +19,7 @@ YELLOW_LIGHT = (255, 255, 102)
 YELLOW = (255, 255, 0)
 GREY = (211, 211, 211)
 ORANGE = (255, 69, 0)
+PINK = (255, 105, 180)
 
 
 
@@ -419,6 +420,11 @@ class Game:
         pygame.draw.rect(self.screen, BLACK, (0, 0, self.screen_width, self.dy))
         pygame.draw.rect(self.screen, BLACK, (0, self.dy+self.nY*self.unit, self.screen_width, self.dy))
 
+        #targety
+        for ghost in self.ghosts:
+            pygame.draw.circle(self.screen, ghost.color, (self.dx+ghost.targetX*self.unit+self.unit/2, self.dy+ghost.targetY*self.unit+self.unit/2), self.unit/4)
+
+
         #INTERFEJS
         #hp
         hpSize = 2*self.unit
@@ -482,6 +488,9 @@ class Game:
             tk.Button(root2, text='You win!', command=root2.destroy).pack()
 
     def ghostsAI(self, ghost):
+
+        ghost.setTarget(self.player, self.ghosts, self.nX, self.nY)
+
         #pobieram aktualna pozycje
         xp = ghost.x
         yp = ghost.y
@@ -689,12 +698,26 @@ class Game:
             #rysowanie
             self.draw()
 
+            #odswiezanie okna
+            pygame.display.update()
+
+            #obsluga licznika
+            self.counter += 1
+            if self.counter >= 1000:
+                self.counter = 0
+
+            #kontroluje FPS
+            self.clock.tick(self.FPS)
+
+
             #przechwytywanie zdarzen
             for event in pygame.event.get():
                 #zamykanie okna
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     # sys.exit()
+                    self.activeGame = False
+                    
 
                 #zmiana rozmiaru okna - koniecznosc przeliczenia niektorych zmiennych
                 elif event.type == pygame.WINDOWEXPOSED:
@@ -720,18 +743,7 @@ class Game:
                         self.player.nextDirection = Direction.WEST
 
             
-            #odswiezanie okna
-            pygame.display.update()
-
-            #obsluga licznika
-            self.counter += 1
-            if self.counter >= 1000:
-                self.counter = 0
-
-            #kontroluje FPS
-            self.clock.tick(self.FPS)
-
-        
+            
         #statystyki
         stats = np.array([])
         # with open("./mapStats.npy", 'wb') as f:
@@ -771,5 +783,5 @@ class Game:
             
             
 
-# game = Game("./maps/correct.npy")
-# game.run()
+game = Game("./maps/correct.npy")
+game.run()
