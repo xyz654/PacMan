@@ -241,6 +241,16 @@ class Ghost(GameElement):
         if (self.isInChase and now-self.timeAI >= chaseTime) or ((not self.isInChase) and now-self.timeAI >= scatterTime):
             self.timeAI = now
             self.isInChase = not self.isInChase
+            #obrot o 180 jezeli zaczyna polowac
+            if self.isInChase:
+                if self.direction == Direction.NORTH:
+                    self.direction = Direction.SOUTH
+                elif self.direction == Direction.EAST:
+                    self.direction = Direction.WEST
+                elif self.direction == Direction.SOUTH:
+                    self.direction = Direction.NORTH
+                elif self.direction == Direction.WEST:
+                    self.direction = Direction.EAST
 
     def move(self, t):
         self.v = 1/t
@@ -287,7 +297,7 @@ class Clyde(Ghost):
         #w zaleznosci w jakim jest modzie, tak ustawiam target
         if self.isInChase:
             #jesli sciga i jest od PacMana odpowiednio daleko to ma target na PacMana
-            if (self.x - player.x)**2 + (self.x - player.y)**2 >= 4**2:
+            if (self.x - player.x)**2 + (self.y - player.y)**2 >= 6**2:
                 self.targetX = player.x
                 self.targetY = player.y
             #jesli jest za blisko, to leci do swojegu punktu ucieczki

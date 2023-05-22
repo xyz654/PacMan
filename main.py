@@ -9,6 +9,8 @@ from interactive import PacMan
 from interactive import Clyde, Blinky, Inky, Pinky
 import tkinter as tk
 
+
+
 # Define colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -20,6 +22,8 @@ YELLOW = (255, 255, 0)
 GREY = (211, 211, 211)
 ORANGE = (255, 69, 0)
 PINK = (255, 105, 180)
+
+
 
 
 
@@ -43,6 +47,7 @@ class Game:
         #okno
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.RESIZABLE)
         pygame.display.set_caption("Pac-Man")
+        self.showTargets = False
 
         self.calculateScreen()
 
@@ -94,6 +99,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
     def makeGraph(self):
+        self.respawnOutput = []
         self.tunels = []
         self.graph = [[[] for j in range(self.nY)] for i in range(self.nX)]
         for i in range(self.nX):
@@ -157,18 +163,27 @@ class Game:
                             self.graph[i][j].append((i,j-1))
                 #obsluga respawnu duszkow
                 elif self.boardTab[i][j] == 0:
+                    #zagniezdzony if dodaje dana pozycje do listy wyjsc z respawnu
                     #lewo
                     if self.boardTab[i-1][j] != 1:
                         self.graph[i][j].append((i-1,j))
+                        if self.boardTab[i-1][j] != 0:
+                            self.respawnOutput.append((i-1, j))
                     #prawo
                     if self.boardTab[i+1][j] != 1: 
                         self.graph[i][j].append((i+1,j))
+                        if self.boardTab[i+1][j] != 0:
+                            self.respawnOutput.append((i+1, j))
                     #gora
                     if self.boardTab[i][j-1] != 1:
                         self.graph[i][j].append((i,j-1))
+                        if self.boardTab[i][j-1] != 0:
+                            self.respawnOutput.append((i, j-1))
                     #dol
                     if self.boardTab[i][j+1] != 1:
                         self.graph[i][j].append((i,j+1))
+                        if self.boardTab[i][j+1] != 0:
+                            self.respawnOutput.append((i, j+1))
 
     def findPathForGhosts(self):
         for startPosition in self.ghostRespawnArea:
@@ -421,7 +436,7 @@ class Game:
         pygame.draw.rect(self.screen, BLACK, (0, self.dy+self.nY*self.unit, self.screen_width, self.dy))
 
         #targety
-        if not canBeEaten:
+        if self.showTargets and not canBeEaten:
             #nie rysuje targetow gdy moga byc jedzone, bo wtedy po prostu duszki poruszaja sie losowo
             for ghost in self.ghosts:
                 pygame.draw.circle(self.screen, ghost.color, (self.dx+ghost.targetX*self.unit+self.unit/2, self.dy+ghost.targetY*self.unit+self.unit/2), self.unit/4)
@@ -494,58 +509,75 @@ class Game:
         xp = ghost.x
         yp = ghost.y
 
-
         #sprawdzam czy nie jestem w tunelu
         if self.boardTab[xp][yp] == 5:
             return
 
         #szukam targetow i ew zmiany modow
         ghost.setTarget(self.player, self.ghosts, self.nX, self.nY)
+        
+        #jesli jestem w respawnie to musze z niego wyjsc, wiec zmieniam target
+        if (xp, yp) in self.ghostRespawnArea:
+            output = random.choice(self.respawnOutput)
+            ghost.targetX = output[0]
+            ghost.targetY = output[1]
 
-        #zbior kierunkow
+        #tworze liste kierunkow w które moge sie ruszyc
         directions = []
+        neighbours = self.graph[xp][yp]
+        if (xp, yp-1) in neighbours and ghost.direction != Direction.SOUTH:
+            directions.append(Direction.NORTH)
+        if (xp, yp+1) in neighbours and ghost.direction != Direction.NORTH:
+            directions.append(Direction.SOUTH)
+        if (xp+1, yp) in neighbours and ghost.direction != Direction.WEST:
+            directions.append(Direction.EAST)
+        if (xp-1, yp) in neighbours and ghost.direction != Direction.EAST:
+            directions.append(Direction.WEST)
+
+        #jesli zbior kierunkow jest pusty to dodaje kierunek z ktorego przyszedlem
+        if len(directions) == 0:
+            if ghost.direction == Direction.NORTH:
+                directions.append(Direction.SOUTH)
+            elif ghost.direction == Direction.EAST:
+                directions.append(Direction.WEST)
+            elif ghost.direction == Direction.SOUTH:
+                directions.append(Direction.NORTH)
+            elif ghost.direction == Direction.WEST:
+                directions.append(Direction.EAST)
+
 
         #gdy moga byc zjedzone
-        canBeEaten = True
         if canBeEaten:
-            
-            #tworze liste kierunkow gdzie moge sie ruszyc
-            neighbours = self.graph[xp][yp]
-            print("-------------------------------")
-            print(xp, yp)
-            print(neighbours)
-            if (xp, yp-1) in neighbours and ghost.direction != Direction.SOUTH:
-                directions.append(Direction.NORTH)
-            if (xp, yp+1) in neighbours and ghost.direction != Direction.NORTH:
-                directions.append(Direction.SOUTH)
-            if (xp+1, yp) in neighbours and ghost.direction != Direction.WEST:
-                directions.append(Direction.EAST)
-            if (xp-1, yp) in neighbours and ghost.direction != Direction.EAST:
-                directions.append(Direction.WEST)
-
-            print(directions)
-            print()
-
             #losuje kierunek na dalszy ruch
-            if len(directions) > 0:
-                ghost.direction = random.choice(directions)
-            else:
-                #jesli nic nie zostalo w zbiorze kierunkow, to cofam sie
-                if ghost.direction == Direction.NORTH:
-                    ghost.direction = Direction.SOUTH
-                elif ghost.direction == Direction.EAST:
-                    ghost.direction = Direction.WEST
-                elif ghost.direction == Direction.SOUTH:
-                    ghost.direction = Direction.NORTH
-                elif ghost.direction == Direction.WEST:
-                    ghost.direction = Direction.EAST
+            ghost.direction = random.choice(directions)
 
         #gdy to one moga zabic
         else:
-            pass
+            #szukam kierunku, ktory da mi najmniejsza odlegosc od targetu
+            minD = float('inf')
+            bestDirection = None
+            for direction in directions:
+                dx, dy = 0, 0
+                if direction == Direction.NORTH:
+                    dx = ghost.x - ghost.targetX
+                    dy = ghost.y-1 - ghost.targetY
+                elif direction == Direction.EAST:
+                    dx = ghost.x+1 - ghost.targetX
+                    dy = ghost.y - ghost.targetY
+                elif direction == Direction.SOUTH:
+                    dx = ghost.x - ghost.targetX
+                    dy = ghost.y+1 - ghost.targetY
+                elif direction == Direction.WEST:
+                    dx = ghost.x-1 - ghost.targetX
+                    dy = ghost.y - ghost.targetY
+                #jesli ten kierunek jest lepszy od poprzednich to to zapisuje
+                d = dx*dx + dy*dy
+                if d < minD:
+                    minD = d
+                    bestDirection = direction
 
-
-
+            #ustawiam kierunek na najlepszy z mozliwych
+            ghost.direction = bestDirection
 
     def moveAll(self):
         #POZWOLENIE NA JEDZENIE I EWENTUALNE SPOWALNIANIE DUSZKOW
@@ -584,6 +616,7 @@ class Game:
         
 
         #ZMIANY KIERUNKU RUCHU
+        turnBack = False
         #Pac-Man
         if self.counter % self.playerMoveTime == 0:
             #potwierdzam poprzednia zmiane pozycji
@@ -607,6 +640,8 @@ class Game:
                     self.counter = 0
                 self.startDinnerTime = time.time()
                 self.dinnerBonus = 200
+                #obrot duszkow o 180 (tylko jezeli przed zjedzeniem nie byly zdatne do spozycia)
+                turnBack = True
             #wisienki
             if self.boardTab[xp][yp] == 6:
                 self.player.otherScore += 100
@@ -644,21 +679,34 @@ class Game:
                 #sprawdzam czy jestem czy nie w tunelu
                 if xp != 0:
                     self.player.direction = None
-                        
 
             #sprawdzam koniec gry
             self.checkWinOrDefeat()
 
             #tworze ew wisienki
             self.cherryService()
-        
+
+
         #Duszki
         if self.counter % ghostMoveTime == 0:
             for ghost in self.ghosts:
                 #potwierdzam poprzednia zmiane pozycji
                 ghost.confirmPosition(self.tunels, self.nX, self.nY)
+                #ewentualny obrot
+                if turnBack:
+                    if ghost.direction == Direction.NORTH:
+                        ghost.direction = Direction.SOUTH
+                    elif ghost.direction == Direction.EAST:
+                        ghost.direction = Direction.WEST
+                    elif ghost.direction == Direction.SOUTH:
+                        ghost.direction = Direction.NORTH
+                    elif ghost.direction == Direction.WEST:
+                        ghost.direction = Direction.EAST
                 #ustawiam kazdemu duszkowi kolejny kierunek
                 self.ghostsAI(ghost, canBeEaten)
+
+        
+        
                 
 
             
@@ -668,7 +716,6 @@ class Game:
         #Duszki
         for ghost in self.ghosts:
             ghost.move(ghostMoveTime)
-
 
     def cherryService(self):
         #tworze wisienke tylko jesli jeszcze jej nie ma i gracz zjadl juz co najmniej 1/4 wszytskich kropek
@@ -703,7 +750,6 @@ class Game:
                     pos = random.choice(self.ghostRespawnArea)
                     ghost.respawn(pos[0], pos[1])
         
-
 
     def run(self):
         while self.activeGame:
@@ -756,6 +802,9 @@ class Game:
                         self.player.nextDirection = Direction.SOUTH
                     if event.key == pygame.K_a:
                         self.player.nextDirection = Direction.WEST
+                    #targety
+                    if event.key == pygame.K_t:
+                        self.showTargets = not self.showTargets
 
             
             
@@ -798,5 +847,5 @@ class Game:
             
             
 
-game = Game("./maps/correct.npy")
-game.run()
+# game = Game("./maps/correct.npy")
+# game.run()
