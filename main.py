@@ -490,7 +490,7 @@ class Game:
             tk.Button(root2, text='You win!', command=root2.destroy).pack()
 
     def ghostsAI(self, ghost, canBeEaten):
-        #zbieram dane o polozeniu
+        #zbieram dane o polozeniu duszka
         xp = ghost.x
         yp = ghost.y
 
@@ -503,38 +503,31 @@ class Game:
         ghost.setTarget(self.player, self.ghosts, self.nX, self.nY)
 
         #zbior kierunkow
-        directions = [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST]
+        directions = []
 
         #gdy moga byc zjedzone
         canBeEaten = True
         if canBeEaten:
-            #usuwam ruchy w tyl
-            if ghost.direction == Direction.NORTH:
-                directions.remove(Direction.SOUTH)
-            elif ghost.direction == Direction.EAST:
-                directions.remove(Direction.WEST)
-            elif ghost.direction == Direction.SOUTH:
-                directions.remove(Direction.NORTH)
-            elif ghost.direction == Direction.WEST:
-                directions.remove(Direction.EAST)
             
-            #usuwam ruchy w sciany
+            #tworze liste kierunkow gdzie moge sie ruszyc
             neighbours = self.graph[xp][yp]
-            try:
-                if (xp, yp-1) not in neighbours:
-                    directions.remove(Direction.NORTH)
-                elif (xp, yp+1) not in neighbours:
-                    directions.remove(Direction.SOUTH)
-                elif (xp+1, yp) not in neighbours:
-                    directions.remove(Direction.EAST)
-                elif (xp-1, yp) not in neighbours:
-                    directions.remove(Direction.WEST)
-            except:
-                pass
+            print("-------------------------------")
+            print(xp, yp)
+            print(neighbours)
+            if (xp, yp-1) in neighbours and ghost.direction != Direction.SOUTH:
+                directions.append(Direction.NORTH)
+            if (xp, yp+1) in neighbours and ghost.direction != Direction.NORTH:
+                directions.append(Direction.SOUTH)
+            if (xp+1, yp) in neighbours and ghost.direction != Direction.WEST:
+                directions.append(Direction.EAST)
+            if (xp-1, yp) in neighbours and ghost.direction != Direction.EAST:
+                directions.append(Direction.WEST)
+
+            print(directions)
+            print()
 
             #losuje kierunek na dalszy ruch
             if len(directions) > 0:
-                print(directions)
                 ghost.direction = random.choice(directions)
             else:
                 #jesli nic nie zostalo w zbiorze kierunkow, to cofam sie
