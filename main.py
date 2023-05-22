@@ -421,8 +421,10 @@ class Game:
         pygame.draw.rect(self.screen, BLACK, (0, self.dy+self.nY*self.unit, self.screen_width, self.dy))
 
         #targety
-        for ghost in self.ghosts:
-            pygame.draw.circle(self.screen, ghost.color, (self.dx+ghost.targetX*self.unit+self.unit/2, self.dy+ghost.targetY*self.unit+self.unit/2), self.unit/4)
+        if not canBeEaten:
+            #nie rysuje targetow gdy moga byc jedzone, bo wtedy po prostu duszki poruszaja sie losowo
+            for ghost in self.ghosts:
+                pygame.draw.circle(self.screen, ghost.color, (self.dx+ghost.targetX*self.unit+self.unit/2, self.dy+ghost.targetY*self.unit+self.unit/2), self.unit/4)
 
 
         #INTERFEJS
@@ -487,49 +489,69 @@ class Game:
 
             tk.Button(root2, text='You win!', command=root2.destroy).pack()
 
-    def ghostsAI(self, ghost):
-
-        ghost.setTarget(self.player, self.ghosts, self.nX, self.nY)
-
-        #pobieram aktualna pozycje
+    def ghostsAI(self, ghost, canBeEaten):
+        #zbieram dane o polozeniu
         xp = ghost.x
         yp = ghost.y
 
-        #pobieram sasiadow aktualnego pola na ktorym jest duszek
-        neighbours = self.graph[xp][yp]
 
-        #INPLEMENTACJA TYMCZASOWA
-        #zeby duszki nie chodzily gora-dol, prawo-lewo to zmniejszam szanse na zmiane kierunku jak jest tylko 2 sasiadow
-        if len(neighbours) == 2 and random.randint(0, 5) > 3 and self.boardTab[xp][yp] != 5:
-            #sprawiam ze nie beda robily niedozwolonych rzeczy
-            if ghost.direction == Direction.NORTH and (xp, yp-1) not in neighbours:
-                if yp != 0:
-                    ghost.direction = None
-            elif ghost.direction == Direction.SOUTH and (xp, yp+1) not in neighbours:
-                if yp != self.nY-1:
-                    ghost.direction = None
-            elif ghost.direction == Direction.EAST and (xp+1, yp) not in neighbours:
-                if xp != self.nX-1:
-                    ghost.direction = None
-            elif ghost.direction == Direction.WEST and (xp-1, yp) not in neighbours:
-                if xp != 0:
-                    ghost.direction = None
-        #tunel
-        elif self.boardTab[xp][yp] != 5:
-            #szukam gdzie pojde
-            nextPosition = random.choice(neighbours)
+        #sprawdzam czy nie jestem w tunelu
+        if self.boardTab[xp][yp] == 5:
+            return
 
-            #teraz szukam jaki musi byc kierunek by tam poszedl
-            if nextPosition[0] == xp:
-                if nextPosition[1] == yp-1:
-                    ghost.direction = Direction.NORTH
-                else:
-                    ghost.direction = Direction.SOUTH
+        #szukam targetow i ew zmiany modow
+        ghost.setTarget(self.player, self.ghosts, self.nX, self.nY)
+
+        #zbior kierunkow
+        directions = [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST]
+
+        #gdy moga byc zjedzone
+        canBeEaten = True
+        if canBeEaten:
+            #usuwam ruchy w tyl
+            if ghost.direction == Direction.NORTH:
+                directions.remove(Direction.SOUTH)
+            elif ghost.direction == Direction.EAST:
+                directions.remove(Direction.WEST)
+            elif ghost.direction == Direction.SOUTH:
+                directions.remove(Direction.NORTH)
+            elif ghost.direction == Direction.WEST:
+                directions.remove(Direction.EAST)
+            
+            #usuwam ruchy w sciany
+            neighbours = self.graph[xp][yp]
+            try:
+                if (xp, yp-1) not in neighbours:
+                    directions.remove(Direction.NORTH)
+                elif (xp, yp+1) not in neighbours:
+                    directions.remove(Direction.SOUTH)
+                elif (xp+1, yp) not in neighbours:
+                    directions.remove(Direction.EAST)
+                elif (xp-1, yp) not in neighbours:
+                    directions.remove(Direction.WEST)
+            except:
+                pass
+
+            #losuje kierunek na dalszy ruch
+            if len(directions) > 0:
+                print(directions)
+                ghost.direction = random.choice(directions)
             else:
-                if nextPosition[0] == xp-1:
+                #jesli nic nie zostalo w zbiorze kierunkow, to cofam sie
+                if ghost.direction == Direction.NORTH:
+                    ghost.direction = Direction.SOUTH
+                elif ghost.direction == Direction.EAST:
                     ghost.direction = Direction.WEST
-                else:
+                elif ghost.direction == Direction.SOUTH:
+                    ghost.direction = Direction.NORTH
+                elif ghost.direction == Direction.WEST:
                     ghost.direction = Direction.EAST
+
+        #gdy to one moga zabic
+        else:
+            pass
+
+
 
 
     def moveAll(self):
@@ -643,7 +665,7 @@ class Game:
                 #potwierdzam poprzednia zmiane pozycji
                 ghost.confirmPosition(self.tunels, self.nX, self.nY)
                 #ustawiam kazdemu duszkowi kolejny kierunek
-                self.ghostsAI(ghost)
+                self.ghostsAI(ghost, canBeEaten)
                 
 
             

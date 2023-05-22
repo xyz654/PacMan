@@ -219,8 +219,8 @@ class Ghost(GameElement):
         self.eaten = False
         self.type = type
         #AI
-        self.targetX = self.xNormalized
-        self.targetY = self.yNormalized
+        self.targetX = self.x
+        self.targetY = self.y
         self.timeAI = time.time()
         self.isInChase = random.choice([True, False])
     
@@ -287,9 +287,9 @@ class Clyde(Ghost):
         #w zaleznosci w jakim jest modzie, tak ustawiam target
         if self.isInChase:
             #jesli sciga i jest od PacMana odpowiednio daleko to ma target na PacMana
-            if (self.xNormalized - player.xNormalized)**2 + (self.yNormalized - player.yNormalized)**2 >= 4**2:
-                self.targetX = player.xNormalized
-                self.targetY = player.yNormalized
+            if (self.x - player.x)**2 + (self.x - player.y)**2 >= 4**2:
+                self.targetX = player.x
+                self.targetY = player.y
             #jesli jest za blisko, to leci do swojegu punktu ucieczki
             else:
                 self.targetX = -1
@@ -320,8 +320,8 @@ class Blinky(Ghost):
         #w zaleznosci w jakim jest modzie, tak ustawiam target
         if self.isInChase:
             #jesli sciga to ma target na PacMana
-            self.targetX = player.xNormalized
-            self.targetY = player.yNormalized
+            self.targetX = player.x
+            self.targetY = player.y
         else:
             #jesli ucieka to ma target na prawy gorny rog 
             self.targetX = nX
@@ -351,22 +351,22 @@ class Inky(Ghost):
             yb = 0
             for ghost in ghosts:
                 if ghost.type == "Blinky":
-                    xb = ghost.xNormalized
-                    yb = ghost.yNormalized
+                    xb = ghost.x
+                    yb = ghost.y
                     break
             
             if player.direction == Direction.NORTH:
-                self.targetX = player.xNormalized-1
-                self.targetY = player.yNormalized-1
+                self.targetX = player.x-1
+                self.targetY = player.y-1
             elif player.direction == Direction.EAST:
-                self.targetX = player.xNormalized+1
-                self.targetY = player.yNormalized
+                self.targetX = player.x+1
+                self.targetY = player.y
             elif player.direction == Direction.SOUTH:
-                self.targetX = player.xNormalized
-                self.targetY = player.yNormalized+1
+                self.targetX = player.x
+                self.targetY = player.y+1
             elif player.direction == Direction.WEST:
-                self.targetX = player.xNormalized-1
-                self.targetY = player.yNormalized
+                self.targetX = player.x-1
+                self.targetY = player.y
 
             dx = xb - self.targetX
             dy = yb - self.targetY
@@ -400,17 +400,17 @@ class Pinky(Ghost):
         if self.isInChase:
             #jesli sciga to ma target na 4 unity przed PacManem (chyba ze gracz idzie do gory, wtedy tez 4 w lewo)
             if player.direction == Direction.NORTH:
-                self.targetX = player.xNormalized-3
-                self.targetY = player.yNormalized-3
+                self.targetX = player.x-3
+                self.targetY = player.y-3
             elif player.direction == Direction.EAST:
-                self.targetX = player.xNormalized+3
-                self.targetY = player.yNormalized
+                self.targetX = player.x+3
+                self.targetY = player.y
             elif player.direction == Direction.SOUTH:
-                self.targetX = player.xNormalized
-                self.targetY = player.yNormalized+3
+                self.targetX = player.x
+                self.targetY = player.y+3
             elif player.direction == Direction.WEST:
-                self.targetX = player.xNormalized-3
-                self.targetY = player.yNormalized
+                self.targetX = player.x-3
+                self.targetY = player.y
         else:
             #jesli ucieka to ma target na lewy gorny rog 
             self.targetX = -1
