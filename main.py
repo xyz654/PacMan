@@ -290,6 +290,9 @@ class Game:
         self.endS = pygame.image.load('./graphics/pngFiles/walls/koncowka3.png')
         self.endW = pygame.image.load('./graphics/pngFiles/walls/koncowka4.png')
 
+        #rondo
+        self.roundabout = pygame.image.load('./graphics/pngFiles/walls/rondo.png')
+
     def scaleImages(self):
         #obrazki pacmana i duszkow
         self.player.scaleImages(self.unit) 
@@ -332,6 +335,9 @@ class Game:
         self.endE = pygame.transform.scale(self.endE, (self.unit, self.unit))
         self.endS = pygame.transform.scale(self.endS, (self.unit, self.unit))
         self.endW = pygame.transform.scale(self.endW, (self.unit, self.unit))
+
+        #rondo
+        self.roundabout = pygame.transform.scale(self.roundabout, (self.unit, self.unit))
 
     def drawWall(self, x, y):
         #lista zawierajaca kierunki rozbudowy muru
@@ -385,7 +391,10 @@ class Game:
             self.screen.blit(self.endS, (self.dx+x*self.unit,self.dy+y*self.unit))
         elif directionsTab[1]:
             self.screen.blit(self.endW, (self.dx+x*self.unit,self.dy+y*self.unit))
-        
+        #jak nie ma sasiadow to rondo
+        else:
+            self.screen.blit(self.roundabout, (self.dx+x*self.unit,self.dy+y*self.unit))
+            
     def draw(self):
         #wypelnianie ekranu kolorem
         self.screen.fill(BLACK)
