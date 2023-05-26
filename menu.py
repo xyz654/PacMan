@@ -41,10 +41,12 @@ class Menu:
 
         #mozliwosc zmiany rozmiaru
         self.root.resizable(True, True)
+        self.root.configure(background='black')
 
         #widgety
         ttk.Label(self.root, text='Welcome to Pac-Man!').pack()
-        ttk.Button(self.root, text='Play!', command=self.start).pack()
+        photo = tk.PhotoImage(file = r"graphics/pngFiles/writing/play1.png")
+        ttk.Button(self.root, text='Play!',  image=photo ,command=self.start).pack()
         ttk.Button(self.root, text='Create new board!', command=self.runNewGenerator).pack()
         ttk.Button(self.root, text='Load draft board!', command=self.runDraftGenerator).pack()
         ttk.Button(self.root, text='Exit', command=exit).pack()  
