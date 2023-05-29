@@ -7,6 +7,7 @@ import main
 import numpy as np
 from os import listdir
 from os.path import isfile, join
+from PIL import Image
 import random
 
 class Menu:
@@ -40,17 +41,31 @@ class Menu:
         self.root.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
 
         #mozliwosc zmiany rozmiaru
-        self.root.resizable(True, True)
+        # self.root.resizable(True, True)
         self.root.configure(background='black')
 
+        style = ttk.Style()
+        style.configure("First", background="black")
+
+        style = ttk.Style()
+        style.configure("BW.TLabel", background="black")
+
+        ttk.Button(text="Test", style="BW.TLabel").pack()
+        ttk.Label(text="Test", style="BW.TLabel").pack()
+
         #widgety
-        ttk.Label(self.root, text='Welcome to Pac-Man!').pack()
-        photo = tk.PhotoImage(file = r"graphics/pngFiles/writing/play.png")
-        ttk.Button(self.root, text='Play!',  image=photo ,command=self.start).pack()
-        ttk.Button(self.root, text='Create new board!', command=self.runNewGenerator).pack()
-        ttk.Button(self.root, text='Load draft board!', command=self.runDraftGenerator).pack()
-        ttk.Button(self.root, text='Exit', command=exit).pack()  
-        ttk.Button(self.root, text='Statistics', command=self.statistics).pack()
+        welcome=tk.PhotoImage(file="graphics/pngFiles/writing/welcome.png")
+        ttk.Label(self.root, image=welcome, style="BW.TLabel").place(x=-20, y=10)
+        play = tk.PhotoImage(file="graphics/pngFiles/writing/play.png")
+        ttk.Button(self.root,  image=play ,command=self.start, style="BW.TLabel").place(x=250, y=100)
+        createNewBoard=tk.PhotoImage(file="graphics/pngFiles/writing/createNewBoard.png")
+        ttk.Button(self.root, image=createNewBoard, command=self.runNewGenerator,  style="BW.TLabel").place(x=4,y=175)
+        loadDraftBoard=tk.PhotoImage(file="graphics/pngFiles/writing/loadDraftBoard.png")
+        ttk.Button(self.root, image=loadDraftBoard, command=self.runDraftGenerator, style="BW.TLabel").place(x=4, y=250)
+        exitText=tk.PhotoImage(file="graphics/pngFiles/writing/exit.png")
+        ttk.Button(self.root, image=exitText, command=exit, style="BW.TLabel").place(x=220, y=325)  
+        statisticsText=tk.PhotoImage(file="graphics/pngFiles/writing/statistics.png")
+        ttk.Button(self.root, image=statisticsText, command=self.statistics, style="BW.TLabel").place(x=120, y=400)
 
         self.root.mainloop()
 
