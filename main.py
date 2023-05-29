@@ -72,6 +72,9 @@ class Game:
         #duszki
         self.ghostRespawnArea = []
 
+        #duszki ktore zabily 
+        self.killers=[]
+
         #pobieram dane i je przypisuje do odpowiednich zmiennych
         self.boardTab = np.zeros((self.nX, self.nY))
         self.loadData(path)
@@ -82,7 +85,6 @@ class Game:
         self.makeGraph()
 
         self.findPathForGhosts()
-
 
         #umiejscowanie duszkow
         self.ghosts = []
@@ -97,6 +99,7 @@ class Game:
         # zegar
         self.counter = 1
         self.clock = pygame.time.Clock()
+        self.startTime = time.time()
 
     def makeGraph(self):
         self.respawnOutput = []
@@ -621,6 +624,7 @@ class Game:
                     self.dinnerBonus *= 2
                 else:
                     self.player.hp -= 1
+                    self.killers.append(ghost.type)
                     self.player.backToPosition(self.pacX, self.pacY)
         
 
@@ -815,15 +819,18 @@ class Game:
                     if event.key == pygame.K_t:
                         self.showTargets = not self.showTargets
 
+        self.endTime = time.time()
             
             
         #statystyki
         stats = np.array([])
         # with open("./mapStats.npy", 'wb') as f:
         #     np.save(f, stats)
+        numGames=0
         with open("./mapStats.npy", 'rb') as f:
             #zbieranie statystyk
             stats = np.load(f)
+            print(stats)
             newStats = []
             for stat in stats:
                 newStats.append(list(stat))
@@ -834,6 +841,7 @@ class Game:
             #jezeli juz gralem na tej mapie to inkrementuje licznik
             exist = False
             for stat in stats:
+                numGames+=int(stat[1])
                 if stat[0] == currMapName:
                     stat[1] = int(stat[1])+1
                     exist = True
@@ -847,6 +855,64 @@ class Game:
             #zapis 
             np.save(f, stats)
             f.close()
+
+
+        #statystyki ogolne - czas gry itp
+
+        generalStats=np.array([])
+        # with open("./generalStats.npy", 'wb') as f:
+        #     np.save(f, generalStats)
+
+
+        with open("./generalStats.npy", 'rb') as f:
+        #zbieranie statystyk
+            generalStats = np.load(f)
+            newGeneralStats = list(generalStats)
+            generalStats = newGeneralStats
+            print(generalStats)
+
+        with open("./generalStats.npy", 'wb') as f:
+
+            if(len(generalStats)==0):
+                generalStats.append((self.endTime-self.startTime))
+                generalStats.append(1)
+                generalStats.append(self.player.dotScore)
+                generalStats.append(0)
+                generalStats.append(0)
+                generalStats.append(0)
+                generalStats.append(0)
+                for name in self.killers:
+                    if name == "Clyde":
+                        generalStats[3]=int(generalStats[3])+1
+                    if name == "Blinky":
+                        generalStats[4]=int(generalStats[4])+1
+                    if name == "Inky":
+                        generalStats[5]=int(generalStats[5])+1
+                    if name == "Pinky":
+                        generalStats[6]=int(generalStats[6])+1
+
+            else:
+            #zwiekszam czas gry 
+                generalStats[0]+=(self.endTime-self.startTime)
+                generalStats[2]=(generalStats[2]*int(generalStats[1])+self.player.dotScore)/(int(generalStats[1])+1)
+                generalStats[1]=int(generalStats[1])+1
+                for name in self.killers:
+                    if name == "Clyde":
+                        generalStats[3]=int(generalStats[3])+1
+                    if name == "Blinky":
+                        generalStats[4]=int(generalStats[4])+1
+                    if name == "Inky":
+                        generalStats[5]=int(generalStats[5])+1
+                    if name == "Pinky":
+                        generalStats[6]=int(generalStats[6])+1
+
+            generalStats = np.array(generalStats)
+            
+            print(generalStats)
+            #zapis 
+            np.save(f, generalStats)
+            f.close()
+
         
         #wyjscie z okna
         pygame.quit()

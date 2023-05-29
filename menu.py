@@ -45,11 +45,12 @@ class Menu:
 
         #widgety
         ttk.Label(self.root, text='Welcome to Pac-Man!').pack()
-        photo = tk.PhotoImage(file = r"graphics/pngFiles/writing/play1.png")
+        photo = tk.PhotoImage(file = r"graphics/pngFiles/writing/play.png")
         ttk.Button(self.root, text='Play!',  image=photo ,command=self.start).pack()
         ttk.Button(self.root, text='Create new board!', command=self.runNewGenerator).pack()
         ttk.Button(self.root, text='Load draft board!', command=self.runDraftGenerator).pack()
         ttk.Button(self.root, text='Exit', command=exit).pack()  
+        ttk.Button(self.root, text='Statistics', command=self.statistics).pack()
 
         self.root.mainloop()
 
@@ -130,7 +131,6 @@ class Menu:
         #losowo wybieram mape
         x=random.choice(generator)
         # subroot.destroy()
-        print("./maps/"+x)
         game = main.Game("./maps/"+x)
         game.run()
 
@@ -398,7 +398,87 @@ class Menu:
 
         self.subroot.mainloop()
 
-    
+
+    def statistics(self):
+        
+        #statystyki
+        stats = np.array([])
+        with open("./generalStats.npy", 'rb') as f:
+            stats = np.load(f)
+            f.close()
+
+        localStats = np.array([])
+        with open("./mapStats.npy", 'rb') as f:
+            localStats=np.load(f)
+            f.close()
+        
+        #tworze okno
+        root2 = tk.Tk()
+
+        #rozmiary
+        window_width = 500
+        window_height = 500
+
+        root2.title("Statistics")
+
+        screen_width = root2.winfo_screenwidth()
+        screen_height = root2.winfo_screenheight()
+
+        centerX = int(screen_width/2 - window_width/2)
+        centerY = int(screen_height/2 - window_height/2)
+
+        root2.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
+
+        mostPopular=''
+        numberOfGames=0
+        for stat in localStats:
+            if numberOfGames<int(stat[1]):
+                numberOfGames=int(stat[1])
+                mostPopular=stat[0]
+
+        mostPopularLevel=None
+        levels=[0,0,0,0,0]
+        gamesOnLevel=0
+
+        onlyfiles = [f for f in listdir("./maps") if isfile(join("./maps", f))]
+        for map in onlyfiles:
+            currentStats=self.loadData("maps/"+map)
+            for stat in localStats:
+                if stat[0] == map:
+                    levels[int(currentStats[0])-1]+=int(stat[1])
+
+        for i in range(len(levels)):
+            if gamesOnLevel<levels[i]:
+                gamesOnLevel=levels[i]
+                mostPopularLevel=i+1
+
+
+        for stat in localStats:
+            if numberOfGames<int(stat[1]):
+                numberOfGames=int(stat[1])
+                mostPopular=stat[0]
+
+        ttk.Label(root2, text='Game time: ' + str(round(stats[0],2))+ 's').pack()
+        ttk.Label(root2, text='Number of games: ' + str(int(stats[1]))).pack()
+        ttk.Label(root2, text='Average number of points: ' + str(int(stats[2]))).pack()
+        ttk.Label(root2, text='Number of kills by Clyde: ' + str(int(stats[3]))).pack()
+        ttk.Label(root2, text='Number of kills by Blinky: ' + str(int(stats[4]))).pack()
+        ttk.Label(root2, text='Number of kills by Inky: ' + str(int(stats[5]))).pack()
+        ttk.Label(root2, text='Number of kills by Pinky: ' + str(int(stats[6]))).pack()
+        ttk.Label(root2, text='The most popular map: ' + mostPopular).pack()
+        ttk.Label(root2, text='The most popular level: ' + str(mostPopularLevel)).pack()
+
+
+
+
+
+            
+ 
+          
+        root2.mainloop()
+
+
+
 
 menu = Menu()
 
