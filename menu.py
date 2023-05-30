@@ -55,18 +55,19 @@ class Menu:
 
         #widgety
         welcome=tk.PhotoImage(file="graphics/pngFiles/writing/welcome.png")
-        ttk.Label(self.root, image=welcome, style="BW.TLabel").place(x=-20, y=10)
+        ttk.Label(self.root, image=welcome, style="BW.TLabel").place(x=40, y=50)
         play = tk.PhotoImage(file="graphics/pngFiles/writing/play.png")
-        ttk.Button(self.root,  image=play ,command=self.start, style="BW.TLabel").place(x=250, y=100)
+        ttk.Button(self.root,  image=play ,command=self.start, style="BW.TLabel").place(x=300, y=150)
         createNewBoard=tk.PhotoImage(file="graphics/pngFiles/writing/createNewBoard.png")
-        ttk.Button(self.root, image=createNewBoard, command=self.runNewGenerator,  style="BW.TLabel").place(x=4,y=175)
+        ttk.Button(self.root, image=createNewBoard, command=self.runNewGenerator,  style="BW.TLabel").place(x=200,y=225)
         loadDraftBoard=tk.PhotoImage(file="graphics/pngFiles/writing/loadDraftBoard.png")
-        ttk.Button(self.root, image=loadDraftBoard, command=self.runDraftGenerator, style="BW.TLabel").place(x=4, y=250)
-        exitText=tk.PhotoImage(file="graphics/pngFiles/writing/exit.png")
-        ttk.Button(self.root, image=exitText, command=exit, style="BW.TLabel").place(x=220, y=325)  
+        ttk.Button(self.root, image=loadDraftBoard, command=self.runDraftGenerator, style="BW.TLabel").place(x=200, y=300)
         statisticsText=tk.PhotoImage(file="graphics/pngFiles/writing/statistics.png")
-        ttk.Button(self.root, image=statisticsText, command=self.statistics, style="BW.TLabel").place(x=120, y=400)
+        ttk.Button(self.root, image=statisticsText, command=self.statistics, style="BW.TLabel").place(x=250, y=375)
 
+        exitText=tk.PhotoImage(file="graphics/pngFiles/writing/exit.png")
+        ttk.Button(self.root, image=exitText, command=exit, style="BW.TLabel").place(x=300, y=450)  
+        
         self.root.mainloop()
 
 
@@ -165,9 +166,10 @@ class Menu:
 
             #rozmiary
             window_width = 250
-            window_height = 50
+            window_height = 100
 
             root2.title("No maps")
+            root2.configure(background='black')
 
             screen_width = root2.winfo_screenwidth()
             screen_height = root2.winfo_screenheight()
@@ -178,9 +180,10 @@ class Menu:
             root2.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
 
 
+
             #widgety
-            ttk.Label(root2, text='No maps with this level!').pack()
-            ttk.Button(root2, text='OK!', command=root2.destroy).pack()
+            ttk.Label(root2, text='No maps with this level!', background="yellow").place(x=50,y=10)
+            ttk.Button(root2, text='OK!', command=root2.destroy).place(x=80,y=40)
         else:
             #losowo wybieram mape
             x=random.choice(generator)
@@ -311,6 +314,8 @@ class Menu:
 
             root2.title("All maps")
 
+            root2.configure(background='black')
+
             screen_width = root2.winfo_screenwidth()
             screen_height = root2.winfo_screenheight()
 
@@ -321,10 +326,16 @@ class Menu:
             
  
             # create listbox object
-            listbox = tk.Listbox(root2, height = 10,
+            listbox = tk.Listbox(root2, height = 7,
                   width = 300,
                   font = "Helvetica",
-                  fg = "black")
+                  fg = "black",
+                  highlightcolor="yellow",
+                  highlightbackground="yellow",
+                  disabledforeground="blue",
+                  selectforeground="black",
+                  selectbackground="yellow")
+            
            
  
             i=1
@@ -335,7 +346,12 @@ class Menu:
             # pack the widgets
             listbox.pack()
 
-            
+            # #Create style object
+            # sto = ttk.Style()
+
+            # #configure style
+            # sto.configure('W.TButton', font= ('Arial', 10, 'underline'),
+            # foreground='Green')
 
             tk.Button(root2, text="Sort by name", command=sortNames).pack()
             tk.Button(root2, text="Sort descending by level", command=sortDescLevel).pack()
