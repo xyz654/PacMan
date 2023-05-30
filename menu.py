@@ -55,18 +55,18 @@ class Menu:
 
         #widgety
         welcome=tk.PhotoImage(file="graphics/pngFiles/writing/welcome.png")
-        ttk.Label(self.root, image=welcome, style="BW.TLabel").place(x=40, y=50)
+        ttk.Label(self.root, image=welcome, style="BW.TLabel").place(x=window_width/2-304, y=50)
         play = tk.PhotoImage(file="graphics/pngFiles/writing/play.png")
-        ttk.Button(self.root,  image=play ,command=self.start, style="BW.TLabel").place(x=300, y=150)
+        ttk.Button(self.root,  image=play ,command=self.start, style="BW.TLabel").place(x=window_width/2-45, y=150)
         createNewBoard=tk.PhotoImage(file="graphics/pngFiles/writing/createNewBoard.png")
-        ttk.Button(self.root, image=createNewBoard, command=self.runNewGenerator,  style="BW.TLabel").place(x=200,y=225)
+        ttk.Button(self.root, image=createNewBoard, command=self.runNewGenerator,  style="BW.TLabel").place(x=window_width/2-170,y=225)
         loadDraftBoard=tk.PhotoImage(file="graphics/pngFiles/writing/loadDraftBoard.png")
-        ttk.Button(self.root, image=loadDraftBoard, command=self.runDraftGenerator, style="BW.TLabel").place(x=200, y=300)
+        ttk.Button(self.root, image=loadDraftBoard, command=self.runDraftGenerator, style="BW.TLabel").place(x=window_width/2-168, y=300)
         statisticsText=tk.PhotoImage(file="graphics/pngFiles/writing/statistics.png")
-        ttk.Button(self.root, image=statisticsText, command=self.statistics, style="BW.TLabel").place(x=250, y=375)
+        ttk.Button(self.root, image=statisticsText, command=self.statistics, style="BW.TLabel").place(x=window_width/2-112, y=375)
 
         exitText=tk.PhotoImage(file="graphics/pngFiles/writing/exit.png")
-        ttk.Button(self.root, image=exitText, command=exit, style="BW.TLabel").place(x=300, y=450)  
+        ttk.Button(self.root, image=exitText, command=exit, style="BW.TLabel").place(x=window_width/2-63, y=450)  
         
         self.root.mainloop()
 
@@ -463,8 +463,8 @@ class Menu:
         root2 = tk.Tk()
 
         #rozmiary
-        window_width = 500
-        window_height = 500
+        window_width = 300
+        window_height = 200
 
         root2.title("Statistics")
 
@@ -475,6 +475,8 @@ class Menu:
         centerY = int(screen_height/2 - window_height/2)
 
         root2.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
+        root2.configure(background='black')
+
 
         mostPopular=''
         numberOfGames=0
@@ -505,15 +507,15 @@ class Menu:
                 numberOfGames=int(stat[1])
                 mostPopular=stat[0]
 
-        ttk.Label(root2, text='Game time: ' + str(round(stats[0],2))+ 's').pack()
-        ttk.Label(root2, text='Number of games: ' + str(int(stats[1]))).pack()
-        ttk.Label(root2, text='Average number of points: ' + str(int(stats[2]))).pack()
-        ttk.Label(root2, text='Number of kills by Clyde: ' + str(int(stats[3]))).pack()
-        ttk.Label(root2, text='Number of kills by Blinky: ' + str(int(stats[4]))).pack()
-        ttk.Label(root2, text='Number of kills by Inky: ' + str(int(stats[5]))).pack()
-        ttk.Label(root2, text='Number of kills by Pinky: ' + str(int(stats[6]))).pack()
-        ttk.Label(root2, text='The most popular map: ' + mostPopular).pack()
-        ttk.Label(root2, text='The most popular level: ' + str(mostPopularLevel)).pack()
+        ttk.Label(root2, text='Game time: ' + str(round(stats[0],2))+ 's', foreground='yellow', background="black").pack()
+        ttk.Label(root2, text='Number of games: ' + str(int(stats[1])), foreground='yellow', background="black").pack()
+        ttk.Label(root2, text='Average number of points: ' + str(int(stats[2])), foreground='yellow', background="black").pack()
+        ttk.Label(root2, text='Number of kills by Clyde: ' + str(int(stats[3])), foreground='yellow', background="black").pack()
+        ttk.Label(root2, text='Number of kills by Blinky: ' + str(int(stats[4])), foreground='yellow', background="black").pack()
+        ttk.Label(root2, text='Number of kills by Inky: ' + str(int(stats[5])), foreground='yellow', background="black").pack()
+        ttk.Label(root2, text='Number of kills by Pinky: ' + str(int(stats[6])), foreground='yellow', background="black").pack()
+        ttk.Label(root2, text='The most popular map: ' + mostPopular, foreground='yellow', background="black").pack()
+        ttk.Label(root2, text='The most popular level: ' + str(mostPopularLevel), foreground='yellow', background="black").pack()
 
 
 

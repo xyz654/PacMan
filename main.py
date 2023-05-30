@@ -876,7 +876,6 @@ class Game:
         with open("./mapStats.npy", 'rb') as f:
             #zbieranie statystyk
             stats = np.load(f)
-            print(stats)
             newStats = []
             for stat in stats:
                 newStats.append(list(stat))
@@ -915,7 +914,7 @@ class Game:
             generalStats = np.load(f)
             newGeneralStats = list(generalStats)
             generalStats = newGeneralStats
-            print(generalStats)
+            
 
         with open("./generalStats.npy", 'wb') as f:
 
@@ -954,7 +953,6 @@ class Game:
 
             generalStats = np.array(generalStats)
             
-            print(generalStats)
             #zapis 
             np.save(f, generalStats)
             f.close()
