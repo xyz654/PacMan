@@ -101,6 +101,13 @@ class Game:
         self.clock = pygame.time.Clock()
         self.startTime = time.time()
 
+        #pause
+        self.pause=False
+
+        #mysz
+        self.mouse_is_pressed = False
+
+
     def makeGraph(self):
         self.respawnOutput = []
         self.tunels = []
@@ -470,6 +477,18 @@ class Game:
         textRect.center = (self.screen_width/2, self.unit*2)
         self.screen.blit(scoreText, textRect)
 
+
+        #dodawanie przycisku pause
+        pygame.draw.rect(self.screen,YELLOW,((self.screen_width-130),30,100,30),0,10)
+        pygame.draw.rect(self.screen,BLACK,((self.screen_width-130),30,100,30),1,10)
+        
+        font1=pygame.font.Font('freesansbold.ttf', 20)
+
+        save=font1.render('PAUSE', True, BLACK, YELLOW)
+        self.screen.blit(save,((self.screen_width-110), 35))
+
+
+
     def checkWinOrDefeat(self):
         #przegrana
         if self.player.hp <= 0:
@@ -805,6 +824,9 @@ class Game:
                     #LPM
                     if event.button == 1:
                         self.mouse_is_pressed = True
+                #keyupy
+                if event.type == pygame.MOUSEBUTTONUP:
+                    self.mouse_is_pressed = False
 
                 if event.type == pygame.KEYDOWN:
                     #sterowanie Pac-Manem
@@ -819,6 +841,29 @@ class Game:
                     #targety
                     if event.key == pygame.K_t:
                         self.showTargets = not self.showTargets
+
+                #przyciski
+                self.mousePos = pygame.mouse.get_pos()
+                x=(int)(self.mousePos[0]-(self.screen_width-130))
+                y=(int)(self.mousePos[1]-30)
+                
+                if self.mouse_is_pressed and x>0 and x<100 and y>0 and y<30:
+                    self.pause= not self.pause
+
+            while self.pause:
+                self.mouse_is_pressed=False
+                #przyciski
+                self.mousePos = pygame.mouse.get_pos()
+                x=(int)(self.mousePos[0]-(self.screen_width-130))
+                y=(int)(self.mousePos[1]-30)
+                for event in pygame.event.get():
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                    #LPM
+                        if event.button == 1:
+                            self.mouse_is_pressed = True
+                if self.mouse_is_pressed and x>0 and x<100 and y>0 and y<30:
+                    self.pause= not self.pause
+
 
         self.endTime = time.time()
             
