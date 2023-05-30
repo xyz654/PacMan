@@ -477,10 +477,11 @@ class Game:
 
             #tworze okno
             root2 = tk.Tk()
+            root2.configure(border=1, highlightbackground="yellow", highlightthickness=10, relief="sunken", background="black")
 
             #rozmiary
             window_width = 200
-            window_height = 50
+            window_height = 100
 
             root2.title("Game results")
 
@@ -492,17 +493,17 @@ class Game:
 
             root2.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
 
-            tk.Button(root2, text='Game over', command=root2.destroy).pack()
+            tk.Button(root2, text='You lost', command=root2.destroy, relief="flat", background="black", foreground="yellow").place(x=45, y=20)
 
         #wygrana
         if self.player.dotScore == self.dotScore:
             self.activeGame = False
             #tworze okno
             root2 = tk.Tk()
-
+            root2.configure(border=1, highlightbackground="yellow", highlightthickness=10, relief="sunken", background="black")
             #rozmiary
             window_width = 200
-            window_height = 50
+            window_height = 100
 
             root2.title("End of game")
 
@@ -514,7 +515,7 @@ class Game:
 
             root2.geometry(f'{window_width}x{window_height}+{centerX}+{centerY}')
 
-            tk.Button(root2, text='You win!', command=root2.destroy).pack()
+            tk.Button(root2, text='You win!', command=root2.destroy, relief="flat", background="black", foreground="yellow").place(x=45, y=20)
 
     def ghostsAI(self, ghost, canBeEaten):
         #zbieram dane o polozeniu duszka

@@ -310,11 +310,11 @@ class Menu:
 
             #rozmiary
             window_width = 500
-            window_height = 500
+            window_height = 600
 
             root2.title("All maps")
 
-            root2.configure(background='black')
+            root2.configure(border=1, highlightbackground="yellow", highlightthickness=10, relief="sunken", background="black")
 
             screen_width = root2.winfo_screenwidth()
             screen_height = root2.winfo_screenheight()
@@ -329,12 +329,11 @@ class Menu:
             listbox = tk.Listbox(root2, height = 7,
                   width = 300,
                   font = "Helvetica",
-                  fg = "black",
-                  highlightcolor="yellow",
+                  fg = "white",
                   highlightbackground="yellow",
-                  disabledforeground="blue",
                   selectforeground="black",
-                  selectbackground="yellow")
+                  selectbackground="yellow",
+                  background="black")
             
            
  
@@ -353,24 +352,26 @@ class Menu:
             # sto.configure('W.TButton', font= ('Arial', 10, 'underline'),
             # foreground='Green')
 
-            tk.Button(root2, text="Sort by name", command=sortNames).pack()
-            tk.Button(root2, text="Sort descending by level", command=sortDescLevel).pack()
-            tk.Button(root2, text="Sort ascending by level", command=sortAscLevel).pack()
-            tk.Button(root2, text="Sort descending by number of games", command=sortDscGames).pack()
-            tk.Button(root2, text="Sort ascending by number of games", command=sortAscGames).pack()
-            inputtxt = tk.Text(root2, height = 1, width = 30)   
-            inputtxt.pack()
-                
-            printButton = tk.Button(root2, text = "Find", command = find)
-            printButton.pack()
 
-            inputtxtLevel = tk.Text(root2, height = 1, width = 10)   
-            inputtxtLevel.pack()
-                
-            printButtonLevel = tk.Button(root2, text = "Find level", command = findlevel)
-            printButtonLevel.pack()
 
-            tk.Button(root2, text="Play on chosen map", command=chosen).pack()
+            tk.Button(root2, text="Sort by name", command=sortNames, relief="flat", background="black", foreground="yellow").place(x=170, y=150)
+            tk.Button(root2, text="Sort descending by level", command=sortDescLevel, relief="flat", background="black", foreground="yellow").place(x=50, y=200)
+            tk.Button(root2, text="Sort ascending by level", command=sortAscLevel, relief="flat", background="black", foreground="yellow").place(x=250,y=200)
+            tk.Button(root2, text="Sort descending by number of games", command=sortDscGames, relief="flat", background="black", foreground="yellow").place(x=110, y=250)
+            tk.Button(root2, text="Sort ascending by number of games", command=sortAscGames, relief="flat", background="black", foreground="yellow").place(x=115, y=300)
+            inputtxt = tk.Text(root2, height = 1, width = 30, background="lightgrey")   
+            inputtxt.place(x=120, y=350)
+                
+            printButton = tk.Button(root2, text = "Find", command = find, relief="flat", background="black", foreground="yellow")
+            printButton.place(x=210, y=380)
+
+            inputtxtLevel = tk.Text(root2, height = 1, width = 10, background="lightgrey")   
+            inputtxtLevel.place(x=190, y=430)
+                
+            printButtonLevel = tk.Button(root2, text = "Find level", command = findlevel, relief="flat", background="black", foreground="yellow")
+            printButtonLevel.place(x=190, y=460)
+
+            tk.Button(root2, text="Play on chosen map", command=chosen, relief="flat", background="black", foreground="yellow").place(x=160, y=510)
             
             root2.mainloop()
 
