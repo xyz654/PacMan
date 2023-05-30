@@ -379,6 +379,8 @@ class Menu:
         window_width = 700
         window_height = 600
 
+        self.subroot.configure(background='black')
+
         screen_width = self.subroot.winfo_screenwidth()
         screen_height = self.subroot.winfo_screenheight()
 
@@ -390,25 +392,38 @@ class Menu:
         #mozliwosc zmiany rozmiaru
         self.subroot.resizable(True, True)
 
+        #style
+        style = ttk.Style()
+        style.configure("BW.TLabel", background="black")
+
         #widgety
-        ttk.Label(self.subroot, text='Play Pac-Man!').pack()
-        ttk.Button(self.subroot, text='Play on random map', command=self.randomMap).pack()
-        ttk.Label(self.subroot, text="Set the difficulty:").pack()
+        randomMap=tk.PhotoImage(file="graphics/pngFiles/writing/randomMap.png")
+        playPacMan=tk.PhotoImage(file="graphics/pngFiles/writing/playpacMan.png")
+        ttk.Label(self.subroot, image=playPacMan, style="BW.TLabel").place(x=50, y=50)
+        ttk.Button(self.subroot, image=randomMap, command=self.randomMap,style="BW.TLabel").place(x=200,y=150)
+        setDifficulty=tk.PhotoImage(file="graphics/pngFiles/writing/setDifficulty.png")
+        ttk.Label(self.subroot, image=setDifficulty, style="BW.TLabel").place(x=175, y=250)
         self.difficulty = tk.DoubleVar()
+        style=ttk.Style()
+        style.configure("TScale", background="black", troughcolor="yellow")
         slider = ttk.Scale(
                                 self.subroot,
                                 from_=1,
                                 to=5,
                                 orient='horizontal', 
                                 variable=self.difficulty,
-                                command=self.updateSlider
+                                command=self.updateSlider,\
+                                style="TScale"
                         )
-        slider.pack()
-        self.difficultyLabel = ttk.Label(self.subroot, text="Current difficulty: "+str(self.difficulty_to_save))
-        self.difficultyLabel.pack()
-        ttk.Button(self.subroot, text='Choose the level', command=self.levelMap).pack()
-
-        ttk.Button(self.subroot, text='Choose the map', command=self.specificMap).pack()
+        slider.place(x=300, y=290)
+        style = ttk.Style()
+        style.configure("BW.TLabel1", background="black")
+        self.difficultyLabel = ttk.Label(self.subroot, text="Current difficulty: "+str(self.difficulty_to_save), background="yellow")
+        self.difficultyLabel.place(x=290, y=320)
+        chooseTheLevel=tk.PhotoImage(file="graphics/pngFiles/writing/chooseTheLevel.png")
+        ttk.Button(self.subroot, image=chooseTheLevel, command=self.levelMap, style="BW.TLabel").place(x=180, y=350)
+        chooseTheMap=tk.PhotoImage(file="graphics/pngFiles/writing/chooseTheMap.png")
+        ttk.Button(self.subroot, image=chooseTheMap, command=self.specificMap, style="BW.TLabel").place(x=200, y=450)
 
 
         self.subroot.mainloop()
